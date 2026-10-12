@@ -29,13 +29,18 @@ saját sakk-logikával és gép elleni móddal.
 - **Ablakkezelés:** GLFW 3.5
 - **OpenGL függvénybetöltő:** GLAD
 - **Fordító:** GCC (MinGW-w64 UCRT)
+- **Fejlesztői környezet:** Visual Studio Code / Notepad++
 
 ## Funkciók
 
 - Modern, sötét színvilágú főmenü
 - Kétjátékos mód (ugyanazon a gépen, felváltva lépve)
 - Gép elleni mód (minimax algoritmus alpha-béta vágással)
-- Teljes sakk-szabályrendszer
+- Teljes sakk-szabályrendszer:
+  - Minden bábu szabályos lépése (gyalog, bástya, huszár, futó, királynő, király)
+  - Ütésvizsgálat
+  - Gyalogátváltozás (királynővé)
+  - Sakk-matt és patt felismerése
 - Kijelölt bábu és a lehetséges lépések vizuális jelölése
 - Egérkezelés
 - Teljes képernyős mód (F11)
@@ -44,19 +49,37 @@ saját sakk-logikával és gép elleni móddal.
 
 ## Fordítás és futtatás
 
-### Előkészületek
+A projekt Windows alatt, MinGW-w64 GCC-vel és GLFW-vel fordítható.
+A forráskód a **src/** mappában található, a shaderek a **shaders/** mappában.
 
-- **MinGW-w64 GCC** (javasolt: MSYS2 UCRT64 verzió)
-- **GLFW 3.5** fejléc- és könyvtárfájlok (a repóban megtalálhatók)
-- **GLAD** (a repóban megtalálható)
+### Szükséges könyvtárak
 
-### Fordítás
+- **GLFW 3.5** – ablakkezelés és bemenet (Windows bináris a **lib/** mappában)
+- **GLAD** – OpenGL függvénybetöltő (a **src/glad.c** és az **include/glad/** mappában)
+- **OpenGL** – a rendszer része (Windows alatt automatikusan elérhető)
 
-Dupla kattints a **build_and_run.bat** fájlra, vagy PowerShell-ből:
+### Fordítási folyamat
 
+A program három lépésben épül fel:
+
+1. **Ikon erőforrás fordítása** – a **resources/sakk.ico** ikonból **windres** segítségével
+   **ikon.o** objektumfájl készül.
+2. **Forrásfájlok fordítása** – a **src/** mappában található összes **.c** fájlt
+   a **gcc** lefordítja **.o** objektumfájlokká.
+3. **Linkelés** – az objektumfájlokat és a GLFW könyvtárat összefűzi a linker,
+   és elkészül a **ChessGL.exe** futtatható állomány.
+
+A teljes folyamatot a **build_and_run.bat** script végzi el egyetlen dupla kattintással.
+
+### Fordítás PowerShell-ből
+
+Ha kézzel szeretnéd futtatni a fordítást, nyiss egy PowerShell ablakot,
+és add ki a következő parancsokat:
+
+    cd Sakk
     .\build_and_run.bat
 
-Ez lefordítja a projektet, majd elindítja a **ChessGL.exe**-t.
+Ez lefuttatja a fordítást, majd elindítja a **ChessGL.exe**-t.
 
 ### Csak fordítás (futtatás nélkül)
 
@@ -64,7 +87,19 @@ Ez lefordítja a projektet, majd elindítja a **ChessGL.exe**-t.
 
 ### Futtatás
 
+Ha már le van fordítva a program:
+
     .\run.bat
+
+### Manuális fordítás (a .bat fájlok nélkül)
+
+Ha teljesen kézzel szeretnéd fordítani:
+
+    gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
+        src\main.c src\tabla.c src\rajz.c src\menu.c src\ai.c src\glad.c ^
+        resources\ikon.o ^
+        -o ChessGL.exe ^
+        -Llib -lglfw3 -lopengl32 -lgdi32 -lm
 
 ## Irányítás
 
@@ -110,9 +145,12 @@ Ez lefordítja a projektet, majd elindítja a **ChessGL.exe**-t.
 
 - A program **NEM** használ külső 3D modell fájlokat – minden bábu egyszerű
   geometriai primitívumokból (kör, négyzet, háromszög) épül fel.
-- A **szövegrenderelés** egy saját 5×7-es bitmap fonttal történik.
-- A **shaderek** külön fájlban vannak (shaders/ mappa).
-- Az **AI** a minimax algoritmust használja alpha-béta vágással.
+- A **szövegrenderelés** egy saját 5×7-es bitmap fonttal történik, így nincs
+  szükség külső könyvtárra.
+- A **shaderek** külön fájlban vannak (shaders/ mappa), hogy könnyen
+  módosíthatók legyenek.
+- Az **AI** a minimax algoritmust használja alpha-béta vágással, 2 lépéses
+  mélységig.
 
 ## Ismert korlátozások
 
