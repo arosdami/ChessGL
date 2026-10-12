@@ -1,4 +1,4 @@
-# Fordítási fájlok
+﻿# Forditasi fajlok
 *.o
 *.obj
 *.exe
@@ -11,7 +11,7 @@
 # Resources - ikon marad, de az ikon.o nem
 resources/ikon.o
 
-# Régi build maradékok
+# Regi build maradekok
 build/
 build_files/
 

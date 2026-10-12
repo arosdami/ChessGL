@@ -1,46 +1,38 @@
-\# ChessGL
+﻿# ChessGL
 
+Klasszikus sakkjatek C nyelven, modern OpenGL 3.3 Core Profile grafikaval.
 
+## Keszitette
 
-Klasszikus sakkjáték C nyelven, modern OpenGL 3.3 Core Profile grafikával.
+- **Nev:** Aros Damjan
+- **Tantargy:** 3D modellezes es jatekfejlesztes
+- **Oktato:** Dr. Mileff Peter
 
+## Technologiak
 
+- **Nyelv:** C (C11)
+- **Grafika:** OpenGL 3.3 Core Profile (sajat shaderek)
+- **Ablakkezeles:** GLFW
+- **OpenGL betolto:** GLAD
 
-\## Készítette
+## Forditas es futtatas
 
+Dupla kattints a build_and_run.bat-ra, vagy PowerShell-bol:
 
+    .\build_and_run.bat
 
-\- \*\*Név:\*\* Aros Damjan
+## Jatekmodok
 
-\- \*\*Tantárgy:\*\* 3D modellezés és játékfejlesztés
+- **2 jatekos** - ugyanazon a gepen, felvaltva
+- **Gep ellen** - minimax algoritmus alpha-beta vagassal
 
-\- \*\*Oktató:\*\* Dr. Mileff Péter
+## Iranyitas
 
+- **Eger bal gomb** - babu kivalasztasa, lepes
+- **ESC** - vissza a fomenube
+- **F11** - teljes kepernyo ki/be
+- **E** - easter egg
 
+## GitHub
 
-\## Technológiák
-
-
-
-\- \*\*Nyelv:\*\* C (C11)
-
-\- \*\*Grafika:\*\* OpenGL 3.3 Core Profile (saját shaderek)
-
-\- \*\*Ablakkezelés:\*\* GLFW
-
-\- \*\*OpenGL betöltő:\*\* GLAD
-
-
-
-\## Fordítás és futtatás
-
-
-
-Dupla kattints a `build\_and\_run.bat`-ra, vagy PowerShell-ből:
-
-
-
-```powershell
-
-.\\build\_and\_run.bat
-
+https://github.com/arosdami/ChessGL
