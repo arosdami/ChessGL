@@ -1,123 +1,123 @@
 ﻿![ChessGL Logo](screenshots/logo.png)
 
-# ChessGL - OpenGL Sakkjatek
+# ChessGL – OpenGL Sakkjáték
 
-Egy modern, C nyelven irodott sakkjatek OpenGL 3.3 Core Profile grafikaval.
-A projekt egy egyetemi bemutato keretein belul keszult, sajat shaderekkel,
-sajat sakk-logikaval es gep elleni moddal.
+Egy modern, C nyelven íródott sakkjáték OpenGL 3.3 Core Profile grafikával.
+A projekt egy egyetemi bemutató keretein belül készült, saját shaderekkel,
+saját sakk-logikával és gép elleni móddal.
 
-## Kepernyokepek
+## Képernyőképek
 
-### Fomenu
+### Főmenü
 
-![Fomenu](screenshots/mainmenu.png)
+![Főmenü](screenshots/mainmenu.png)
 
-### Jatekter
+### Játéktér
 
-![Jatekter](screenshots/sakk.png)
+![Játéktér](screenshots/sakk.png)
 
-## Keszitette
+## Készítette
 
-- **Nev:** Aros Damjan
-- **Tantargy:** 3D modellezes es jatekfejlesztes
-- **Oktato:** Dr. Mileff Peter
+- **Név:** Aros Damján
+- **Tantárgy:** 3D modellezés és játékfejlesztés
+- **Oktató:** Dr. Mileff Péter
 
-## Technologiak
+## Technológiák
 
 - **Nyelv:** C (C11)
-- **Grafika:** OpenGL 3.3 Core Profile - sajat vertex- es fragment shader
-- **Ablakkezeles:** GLFW 3.5
-- **OpenGL fuggvenybetolto:** GLAD
-- **Fordito:** GCC (MinGW-w64 UCRT)
+- **Grafika:** OpenGL 3.3 Core Profile – saját vertex- és fragment shader
+- **Ablakkezelés:** GLFW 3.5
+- **OpenGL függvénybetöltő:** GLAD
+- **Fordító:** GCC (MinGW-w64 UCRT)
 
-## Funkciok
+## Funkciók
 
-- Modern, sotet szinvilagu fomenu
-- Ket jatekos mod (ugyanazon a gepen, felvaltva lepve)
-- Gep elleni mod (minimax algoritmus alpha-beta vagassal)
-- Teljes sakk-szabalyrendszer
-- Kivalasztott babu es a lehetseges lepesek vizualis jelolese
-- Egeres interakcio
-- Teljes kepernyos mod (F11)
-- Sajat sakkfigura-ikon az EXE fajlon
+- Modern, sötét színvilágú főmenü
+- Kétjátékos mód (ugyanazon a gépen, felváltva lépve)
+- Gép elleni mód (minimax algoritmus alpha-béta vágással)
+- Teljes sakk-szabályrendszer
+- Kijelölt bábu és a lehetséges lépések vizuális jelölése
+- Egérkezelés
+- Teljes képernyős mód (F11)
+- Saját sakkfigura-ikon az EXE fájlon
 - Easter egg
 
-## Forditas es futtatas
+## Fordítás és futtatás
 
-### Elokeszuletek
+### Előkészületek
 
-- **MinGW-w64 GCC** (javasolt: MSYS2 UCRT64 verzio)
-- **GLFW 3.5** fejlec- es konyvtarfajlok (a repoban megtalalhatok)
-- **GLAD** (a repoban megtalalhato)
+- **MinGW-w64 GCC** (javasolt: MSYS2 UCRT64 verzió)
+- **GLFW 3.5** fejléc- és könyvtárfájlok (a repóban megtalálhatók)
+- **GLAD** (a repóban megtalálható)
 
-### Forditas
+### Fordítás
 
-Dupla kattints a **build_and_run.bat** fajlra, vagy PowerShell-bol:
+Dupla kattints a **build_and_run.bat** fájlra, vagy PowerShell-ből:
 
     .\build_and_run.bat
 
-Ez leforditja a projektet, majd elinditja a **ChessGL.exe**-t.
+Ez lefordítja a projektet, majd elindítja a **ChessGL.exe**-t.
 
-### Csak forditas (futtatas nelkul)
+### Csak fordítás (futtatás nélkül)
 
     .\build.bat
 
-### Futtatas
+### Futtatás
 
     .\run.bat
 
-## Iranyitas
+## Irányítás
 
-| Gomb | Funkcio |
+| Gomb | Funkció |
 |------|---------|
-| **Bal eger gomb** | Babu kivalasztasa, majd celmezo kattintasa |
-| **ESC** | Vissza a fomenube / Kilepes |
-| **F11** | Teljes kepernyo ki/be |
+| **Bal egér gomb** | Bábu kiválasztása, majd célmező kattintása |
+| **ESC** | Vissza a főmenübe / Kilépés |
+| **F11** | Teljes képernyő ki/be |
 | **E** | Easter egg be/ki |
 
-## Jatekmenet
+## Játékmenet
 
-1. Inditas utan a **fomenuben** vagy.
-2. Valaszd az **"Uj jatek (2 jatekos)"** vagy a **"Gep ellen"** opciot.
-3. A sakktablan kattints a sajat babudra - a lehetseges lepesek zolddel kiemelodnek.
-4. Kattints a celmezore a lepes vegrehajtasahoz.
-5. A jatek addig tart, amig valamelyik fel mattot nem kap, vagy patt nem lesz.
+1. Indítás után a **főmenüben** vagy.
+2. Válaszd az **„Új játék (2 játékos)"** vagy a **„Gép ellen"** opciót.
+3. A sakktáblán kattints a saját bábúdra – a lehetséges lépések zölddel kiemelődnek.
+4. Kattints a célmezőre a lépés végrehajtásához.
+5. A játék addig tart, amíg valamelyik fél mattot nem kap, vagy patt nem lesz.
 
-## Projekt struktura
+## Projekt struktúra
 
     ChessGL/
-    |-- ChessGL.exe            (a leforditott program)
-    |-- glfw3.dll              (GLFW dinamikus konyvtar)
-    |-- build.bat              (fordito script)
-    |-- build_and_run.bat      (forditas + futtatas)
-    |-- run.bat                (csak futtatas)
+    |-- ChessGL.exe            (a lefordított program)
+    |-- glfw3.dll              (GLFW dinamikus könyvtár)
+    |-- build.bat              (fordító script)
+    |-- build_and_run.bat      (fordítás + futtatás)
+    |-- run.bat                (csak futtatás)
     |-- README.md
     |
-    |-- include/               (fejlec fajlok)
-    |-- lib/                   (GLFW statikus konyvtarak)
+    |-- include/               (fejléc fájlok)
+    |-- lib/                   (GLFW statikus könyvtárak)
     |-- shaders/               (OpenGL shaderek)
-    |-- resources/             (ikon es egyeb eroforrasok)
-    |-- screenshots/           (kepernyokepek)
-    +-- src/                   (forrasfajlok)
-        |-- main.c             (fo program, fo ciklus, kepernyokezeles)
-        |-- tabla.c / tabla.h  (sakk logika, babuk lepesei)
-        |-- rajz.c / rajz.h    (OpenGL primitívek, szovegrendering)
-        |-- menu.c / menu.h    (kepernyo-valtas kezelese)
-        |-- ai.c / ai.h        (minimax AI alpha-beta vagassal)
-        +-- glad.c             (GLAD betolto)
+    |-- resources/             (ikon és egyéb erőforrások)
+    |-- screenshots/           (képernyőképek)
+    +-- src/                   (forrásfájlok)
+        |-- main.c             (fő program, fő ciklus, képernyőkezelés)
+        |-- tabla.c / tabla.h  (sakk logika, bábuk lépései)
+        |-- rajz.c / rajz.h    (OpenGL primitívek, szövegrenderelés)
+        |-- menu.c / menu.h    (képernyő-váltás kezelése)
+        |-- ai.c / ai.h        (minimax AI alpha-béta vágással)
+        +-- glad.c             (GLAD betöltő)
 
-## Fejlesztesi megjegyzesek
+## Fejlesztési megjegyzések
 
-- A program **NEM** hasznal kulso 3D modell fajlokat - minden babu egyszeru
-  geometriai primitivumokbol (kor, negyzet, haromszog) epul fel.
-- A **szovegrendering** egy sajat 5x7-es bitmap fonttal tortenik.
-- A **shaderek** kulon fajlban vannak (shaders/ mappa).
-- Az **AI** a minimax algoritmust hasznalja alpha-beta vagassal.
+- A program **NEM** használ külső 3D modell fájlokat – minden bábu egyszerű
+  geometriai primitívumokból (kör, négyzet, háromszög) épül fel.
+- A **szövegrenderelés** egy saját 5×7-es bitmap fonttal történik.
+- A **shaderek** külön fájlban vannak (shaders/ mappa).
+- Az **AI** a minimax algoritmust használja alpha-béta vágással.
 
-## Ismert korlataitasok
+## Ismert korlátozások
 
-- Nincs sanconas (castling) es en passant tamogatas
-- Az AI nem veszi eszre a kozvetlen matt-veszelyt, csak az anyagi elonyt
+- Nincs sáncolás (castling) és en passant támogatás
+- Az AI nem veszi észre a közvetlen matt-veszélyt, csak az anyagi előnyt
 
 ## GitHub
 
@@ -125,5 +125,5 @@ https://github.com/arosdami/ChessGL
 
 ## Licenc
 
-Ez a projekt egyetemi bemutato celjabol keszult. Szabadon felhasznalhato
-tanulasi celokra.
+Ez a projekt egyetemi bemutató céljából készült. Szabadon felhasználható
+tanulási célokra.
