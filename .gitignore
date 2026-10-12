@@ -1,0 +1,23 @@
+# Fordítási fájlok
+*.o
+*.obj
+*.exe
+
+# MSYS / MSVC
+*.ilk
+*.pdb
+*.exp
+
+# Resources - ikon marad, de az ikon.o nem
+resources/ikon.o
+
+# Régi build maradékok
+build/
+build_files/
+
+# Backup
+*_backup/
+
+# Rendszer
+Thumbs.db
+Desktop.ini
