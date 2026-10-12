@@ -50,11 +50,10 @@ saját sakk-logikával és gép elleni móddal.
 ## Fordítás és futtatás
 
 A projekt Windows alatt, MinGW-w64 GCC-vel és GLFW-vel fordítható.
-A forráskód a **src/** mappában található, a shaderek a **shaders/** mappában.
 
 ### Szükséges könyvtárak
 
-- **GLFW 3.5** – ablakkezelés és bemenet (Windows bináris a **lib/** mappában)
+- **GLFW 3.5** – ablakkezelés és bemenet (a repóban megtalálható a **lib/** mappában)
 - **GLAD** – OpenGL függvénybetöltő (a **src/glad.c** és az **include/glad/** mappában)
 - **OpenGL** – a rendszer része (Windows alatt automatikusan elérhető)
 
@@ -62,44 +61,31 @@ A forráskód a **src/** mappában található, a shaderek a **shaders/** mappá
 
 A program három lépésben épül fel:
 
-1. **Ikon erőforrás fordítása** – a **resources/sakk.ico** ikonból **windres** segítségével
-   **ikon.o** objektumfájl készül.
+1. **Ikon erőforrás fordítása** – a **resources/sakk.ico** ikonból **windres**
+   segítségével **ikon.o** objektumfájl készül.
 2. **Forrásfájlok fordítása** – a **src/** mappában található összes **.c** fájlt
    a **gcc** lefordítja **.o** objektumfájlokká.
 3. **Linkelés** – az objektumfájlokat és a GLFW könyvtárat összefűzi a linker,
    és elkészül a **ChessGL.exe** futtatható állomány.
 
-A teljes folyamatot a **build_and_run.bat** script végzi el egyetlen dupla kattintással.
+### Manuális fordítás
 
-### Fordítás PowerShell-ből
-
-Ha kézzel szeretnéd futtatni a fordítást, nyiss egy PowerShell ablakot,
-és add ki a következő parancsokat:
-
-    cd Sakk
-    .\build_and_run.bat
-
-Ez lefuttatja a fordítást, majd elindítja a **ChessGL.exe**-t.
-
-### Csak fordítás (futtatás nélkül)
-
-    .\build.bat
-
-### Futtatás
-
-Ha már le van fordítva a program:
-
-    .\run.bat
-
-### Manuális fordítás (a .bat fájlok nélkül)
-
-Ha teljesen kézzel szeretnéd fordítani:
+Nyiss egy PowerShell vagy parancssor ablakot, és add ki a következő parancsot:
 
     gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
         src\main.c src\tabla.c src\rajz.c src\menu.c src\ai.c src\glad.c ^
         resources\ikon.o ^
         -o ChessGL.exe ^
         -Llib -lglfw3 -lopengl32 -lgdi32 -lm
+
+Ez lefordítja a projektet, és létrehozza a **ChessGL.exe** futtatható állományt
+a projekt gyökerében.
+
+### Futtatás
+
+A fordított program a projekt gyökeréből indítható:
+
+    .\ChessGL.exe
 
 ## Irányítás
 
@@ -123,9 +109,6 @@ Ha teljesen kézzel szeretnéd fordítani:
     ChessGL/
     |-- ChessGL.exe            (a lefordított program)
     |-- glfw3.dll              (GLFW dinamikus könyvtár)
-    |-- build.bat              (fordító script)
-    |-- build_and_run.bat      (fordítás + futtatás)
-    |-- run.bat                (csak futtatás)
     |-- README.md
     |
     |-- include/               (fejléc fájlok)
