@@ -1,8 +1,20 @@
 ﻿# ChessGL - OpenGL Sakkjatek
 
+![Fomenu](screenshots/mainmenu.png)
+
 Egy modern, C nyelven irodott sakkjatek OpenGL 3.3 Core Profile grafikaval.
 A projekt egy egyetemi bemutato keretein belul keszult, sajat shaderekkel,
 sajat sakk-logikaval es gep elleni moddal.
+
+## Kepernyokepek
+
+### Fomenu
+
+![Fomenu](screenshots/mainmenu.png)
+
+### Jatekter
+
+![Jatekter](screenshots/sakk.png)
 
 ## Keszitette
 
@@ -17,18 +29,13 @@ sajat sakk-logikaval es gep elleni moddal.
 - **Ablakkezeles:** GLFW 3.5
 - **OpenGL fuggvenybetolto:** GLAD
 - **Fordito:** GCC (MinGW-w64 UCRT)
-- **Fejlesztoi kornyezet:** Visual Studio Code / Notepad++
 
 ## Funkciok
 
 - Modern, sotet szinvilagu fomenu
 - Ket jatekos mod (ugyanazon a gepen, felvaltva lepve)
 - Gep elleni mod (minimax algoritmus alpha-beta vagassal)
-- Teljes sakk-szabalyrendszer:
-  - Minden babu szabalyos lepese (gyalog, bastya, huszar, futo, kiralyno, kiraly)
-  - Utkozesvizsgalat
-  - Gyalogatvaltozas (kiralynove)
-  - Sakk-matt es patt felismerese
+- Teljes sakk-szabalyrendszer
 - Kivalasztott babu es a lehetseges lepesek vizualis jelolese
 - Egeres interakcio
 - Teljes kepernyos mod (F11)
@@ -67,8 +74,6 @@ Ez leforditja a projektet, majd elinditja a **ChessGL.exe**-t.
 | **ESC** | Vissza a fomenube / Kilepes |
 | **F11** | Teljes kepernyo ki/be |
 | **E** | Easter egg be/ki |
-| **I** | Kilepes megerositese (a kilepes kepernyon) |
-| **N** | Kilepes megszakitasa (a kilepes kepernyon) |
 
 ## Jatekmenet
 
@@ -89,22 +94,10 @@ Ez leforditja a projektet, majd elinditja a **ChessGL.exe**-t.
     |-- README.md
     |
     |-- include/               (fejlec fajlok)
-    |   |-- GLFW/
-    |   |-- glad/
-    |   +-- KHR/
-    |
     |-- lib/                   (GLFW statikus konyvtarak)
-    |   |-- libglfw3.a
-    |   +-- libglfw3dll.a
-    |
     |-- shaders/               (OpenGL shaderek)
-    |   |-- vertex.glsl
-    |   +-- fragment.glsl
-    |
     |-- resources/             (ikon es egyeb eroforrasok)
-    |   |-- sakk.ico
-    |   +-- ikon.rc
-    |
+    |-- screenshots/           (kepernyokepek)
     +-- src/                   (forrasfajlok)
         |-- main.c             (fo program, fo ciklus, kepernyokezeles)
         |-- tabla.c / tabla.h  (sakk logika, babuk lepesei)
@@ -117,12 +110,9 @@ Ez leforditja a projektet, majd elinditja a **ChessGL.exe**-t.
 
 - A program **NEM** hasznal kulso 3D modell fajlokat - minden babu egyszeru
   geometriai primitivumokbol (kor, negyzet, haromszog) epul fel.
-- A **szovegrendering** egy sajat 5x7-es bitmap fonttal tortenik, igy nem
-  kell kulso betolto konyvtar.
-- A **shaderek** kulon fajlban vannak (shaders/ mappa), hogy konnyen
-  modosithatok legyenek.
-- Az **AI** a minimax algoritmust hasznalja alpha-beta vagassal, 2 lepeses
-  melysegig.
+- A **szovegrendering** egy sajat 5x7-es bitmap fonttal tortenik.
+- A **shaderek** kulon fajlban vannak (shaders/ mappa).
+- Az **AI** a minimax algoritmust hasznalja alpha-beta vagassal.
 
 ## Ismert korlataitasok
 
