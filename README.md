@@ -1,6 +1,6 @@
-﻿# ChessGL - OpenGL Sakkjatek
+﻿![ChessGL Logo](screenshots/logo.png)
 
-![Fomenu](screenshots/mainmenu.png)
+# ChessGL - OpenGL Sakkjatek
 
 Egy modern, C nyelven irodott sakkjatek OpenGL 3.3 Core Profile grafikaval.
 A projekt egy egyetemi bemutato keretein belul keszult, sajat shaderekkel,
