@@ -8,6 +8,7 @@
 #include "tabla.h"
 #include "menu.h"
 #include "ai.h"
+#include "babu.h"
 
 // ============================================================
 //                    GOMBOK A FOMENUBEN
@@ -18,7 +19,7 @@ typedef struct {
 } Gomb;
 
 static Gomb fomenu_gombok[] = {
-    {"Duel", 0, 0, 0, 0},
+    {"Uj jatek (2 jatekos)", 0, 0, 0, 0},
     {"Gep ellen",            0, 0, 0, 0},
     {"Nevjegy",              0, 0, 0, 0},
     {"Kilepes",              0, 0, 0, 0},
@@ -43,19 +44,6 @@ static int eger_kattintott(void) {
     int kattintott = (most && !eger_elozo);
     eger_elozo = most;
     return kattintott;
-}
-
-// ============================================================
-//                    SZIV RAJZOLAS
-// ============================================================
-static void sziv_rajzol(float cx, float cy, float meret, float r, float g, float b) {
-    float fel = meret * 0.5f;
-    rajz_kor(cx - fel * 0.55f, cy - fel * 0.20f, fel * 0.55f, r, g, b);
-    rajz_kor(cx + fel * 0.55f, cy - fel * 0.20f, fel * 0.55f, r, g, b);
-    rajz_haromszog(cx - fel, cy + fel * 0.05f,
-                   cx + fel, cy + fel * 0.05f,
-                   cx,       cy + fel * 1.30f,
-                   r, g, b);
 }
 
 // ============================================================
@@ -141,62 +129,51 @@ static void nevjegy_rajzol(void) {
 
     rajz_torol(0.07f, 0.08f, 0.11f);
 
-    // Kis kepernyokre kicsinyites
     float scale = 1.0f;
     if (mag < 900.0f) scale = mag / 900.0f;
     if (scale < 0.55f) scale = 0.55f;
 
-    // ---- Meretek ----
-    float cim_meret   = 42.0f * scale;
-    float cim_sav     = cim_meret + 30.0f * scale;
+    float cim_meret = 42.0f * scale;
+    float cim_sav   = cim_meret + 30.0f * scale;
 
-    float cimke_m     = 13.0f * scale;
-    float ertek_m     = 22.0f * scale;
+    float cimke_m = 13.0f * scale;
+    float ertek_m = 22.0f * scale;
     float fejlec_par_mag = cimke_m + 6.0f * scale + ertek_m + 20.0f * scale;
-    float fejlec_sav  = 3 * fejlec_par_mag;
+    float fejlec_sav = 3 * fejlec_par_mag;
 
-    float leiras_cim_m    = 16.0f * scale;
-    float leiras_szoveg_m = 14.0f * scale;
-    float leiras_sor_koz  = 20.0f * scale;
+    float lcim_m    = 16.0f * scale;
+    float lszov_m   = 14.0f * scale;
+    float lsor_koz  = 20.0f * scale;
 
     const char *leiras[] = {
         "A ChessGL egy klasszikus sakkjatek, C nyelven,",
         "modern OpenGL 3.3 Core Profile grafikaval.",
         "",
-        "A megjelenites teljes egeszeben shader-alapu:",
-        "a babuk, a sakktabla es a menuelemek sajat geo-",
-        "metriai primitivumokbol epulnek fel, sajat vertex-",
-        "es fragment shaderrel, egyetlen VBO-bol kirajzolva.",
+        "A megjelenites shader-alapu: a babuk, a sakktabla",
+        "es a menuelemek sajat geometriai primitivumokbol",
+        "epulnek fel, sajat vertex- es fragment shaderrel.",
         "",
         "A jateklogika sajat implementacio: minden babu",
-        "szabalyos lepese, utkozesvizsgalat, gyalogatval-",
-        "tozas, valamint a jatek vegso allapotanak felis-",
-        "merese.",
+        "szabalyos lepese, utkozesvizsgalat, gyalogatvaltozas.",
         "",
         "A gep elleni mod minimax algoritmuson alapul,",
         "alpha-beta vagassal. 2 jatekos mod is elerheto."
     };
     int leiras_db = sizeof(leiras) / sizeof(leiras[0]);
 
-    // A doboz belso meretei
-    float doboz_belso_margo = 30.0f * scale;
-    float doboz_felso_margo = 55.0f * scale;
-    float doboz_also_margo  = 25.0f * scale;
+    float doboz_felso = 55.0f * scale;
+    float doboz_also  = 25.0f * scale;
+    float doboz_mag   = doboz_felso + leiras_db * lsor_koz + doboz_also;
 
-    float leiras_tartalom_mag = leiras_db * leiras_sor_koz;
-    float doboz_mag = doboz_felso_margo + leiras_tartalom_mag + doboz_also_margo;
-
-    float link_sav  = 70.0f * scale;
-    float sziv_sav  = 60.0f * scale;
+    float link_sav = 70.0f * scale;
+    float sziv_sav = 60.0f * scale;
 
     float blokk_mag = cim_sav + fejlec_sav + 30.0f * scale
                       + doboz_mag + link_sav + sziv_sav;
 
-    // ---- Kozepre igazitas ----
     float blokk_y = (mag - blokk_mag) / 2.0f;
     if (blokk_y < 20.0f) blokk_y = 20.0f;
 
-    // ---- Cim ----
     const char *cim = "NEVJEGY";
     float cim_szel = rajz_szoveg_szelesseg(cim, cim_meret);
     rajz_szoveg(cim, (szel - cim_szel) / 2.0f, blokk_y,
@@ -204,91 +181,72 @@ static void nevjegy_rajzol(void) {
 
     float y = blokk_y + cim_sav;
 
-    // ---- Fejlec: 3 par sor ----
-    const char *fejlec_cimkek[] = { "Keszitette:", "Tantargy:", "Oktato:" };
-    const char *fejlec_ertekek[] = {
+    const char *cimkek[] = { "Keszitette:", "Tantargy:", "Oktato:" };
+    const char *ertekek[] = {
         "Aros Damjan",
         "3D modellezes es jatekfejlesztes",
         "Dr. Mileff Peter"
     };
 
     for (int i = 0; i < 3; i++) {
-        float cw = rajz_szoveg_szelesseg(fejlec_cimkek[i], cimke_m);
-        float ew = rajz_szoveg_szelesseg(fejlec_ertekek[i], ertek_m);
-
-        rajz_szoveg(fejlec_cimkek[i], (szel - cw) / 2.0f, y,
+        float cw = rajz_szoveg_szelesseg(cimkek[i], cimke_m);
+        rajz_szoveg(cimkek[i], (szel - cw) / 2.0f, y,
                     cimke_m, 0.55f, 0.62f, 0.72f);
         y += cimke_m + 6.0f * scale;
 
-        rajz_szoveg(fejlec_ertekek[i], (szel - ew) / 2.0f, y,
+        float ew = rajz_szoveg_szelesseg(ertekek[i], ertek_m);
+        rajz_szoveg(ertekek[i], (szel - ew) / 2.0f, y,
                     ertek_m, 0.95f, 0.92f, 0.78f);
         y += ertek_m + 20.0f * scale;
     }
 
-    // Egy kis hezag
     y += 30.0f * scale;
 
-    // ---- Leiras doboz ----
-    // A doboz szelessege: kepernyo 55%-a, de legalabb 500 pixel
     float doboz_w = szel * 0.55f;
     if (doboz_w < 500.0f) doboz_w = 500.0f;
     if (doboz_w > 900.0f) doboz_w = 900.0f;
 
-    // KÖZÉPRE igazítjuk a dobozt
     float doboz_x = (szel - doboz_w) / 2.0f;
     float doboz_y = y;
 
-    // Hatterszin
     rajz_negyzet(doboz_x, doboz_y, doboz_w, doboz_mag,
                  0.12f, 0.14f, 0.19f);
-    // Diszkret felso csik
     rajz_negyzet(doboz_x, doboz_y, doboz_w, 2.0f,
                  0.35f, 0.65f, 0.80f);
 
-    // Leiras cim – kozepen
-    const char *leiras_cim = "A programrol";
-    float lcim_w = rajz_szoveg_szelesseg(leiras_cim, leiras_cim_m);
-    rajz_szoveg(leiras_cim, (szel - lcim_w) / 2.0f,
-                doboz_y + 18.0f * scale,
-                leiras_cim_m, 0.70f, 0.85f, 0.75f);
+    const char *lcim = "A programrol";
+    float lcim_w = rajz_szoveg_szelesseg(lcim, lcim_m);
+    rajz_szoveg(lcim, (szel - lcim_w) / 2.0f, doboz_y + 18.0f * scale,
+                lcim_m, 0.70f, 0.85f, 0.75f);
 
-    // Leiras sorok – MINDEN sor KOZEPEN
-    float ly = doboz_y + doboz_felso_margo;
+    float ly = doboz_y + doboz_felso;
     for (int i = 0; i < leiras_db; i++) {
-        float w = rajz_szoveg_szelesseg(leiras[i], leiras_szoveg_m);
-        // A doboz kozepet vesszuk, es a sor szelesseget levonva -> kozep
-        rajz_szoveg(leiras[i],
-                    doboz_x + (doboz_w - w) / 2.0f,
-                    ly,
-                    leiras_szoveg_m, 0.82f, 0.85f, 0.88f);
-        ly += leiras_sor_koz;
+        float w = rajz_szoveg_szelesseg(leiras[i], lszov_m);
+        rajz_szoveg(leiras[i], doboz_x + (doboz_w - w) / 2.0f, ly,
+                    lszov_m, 0.82f, 0.85f, 0.88f);
+        ly += lsor_koz;
     }
 
-    y += doboz_mag;
-    y += 20.0f * scale;
+    y += doboz_mag + 20.0f * scale;
 
-    // ---- GitHub link ----
     float gc_m = 13.0f * scale;
-    const char *gh_cimke = "GitHub:";
-    float gc_w = rajz_szoveg_szelesseg(gh_cimke, gc_m);
-    rajz_szoveg(gh_cimke, (szel - gc_w) / 2.0f, y, gc_m,
+    const char *gh_c = "GitHub:";
+    float gc_w = rajz_szoveg_szelesseg(gh_c, gc_m);
+    rajz_szoveg(gh_c, (szel - gc_w) / 2.0f, y, gc_m,
                 0.55f, 0.62f, 0.72f);
     y += gc_m + 6.0f * scale;
 
     float gl_m = 17.0f * scale;
-    const char *gh_link = "github.com/arosdami/ChessGL";
-    float gl_w = rajz_szoveg_szelesseg(gh_link, gl_m);
-    rajz_szoveg(gh_link, (szel - gl_w) / 2.0f, y, gl_m,
+    const char *gh_l = "https://github.com/arosdami/ChessGL";
+    float gl_w = rajz_szoveg_szelesseg(gh_l, gl_m);
+    rajz_szoveg(gh_l, (szel - gl_w) / 2.0f, y, gl_m,
                 0.55f, 0.75f, 1.00f);
 
     y += link_sav;
 
-    // ---- Sziv ----
-    float sziv_meret = 36.0f * scale;
-    sziv_rajzol(szel / 2.0f, y + sziv_meret * 0.6f,
-                sziv_meret, 0.95f, 0.20f, 0.30f);
+    sziv_rajzol(szel / 2.0f, y + 36.0f * scale * 0.6f,
+                36.0f * scale, 0.95f, 0.20f, 0.30f);
 
-    // ---- Sugo ----
     const char *sugo = "Nyomj ESC-et a visszalepeshez!";
     float sm = 16.0f * scale;
     float sw = rajz_szoveg_szelesseg(sugo, sm);
@@ -319,54 +277,11 @@ static void kilepes_rajzol(void) {
 }
 
 // ============================================================
-//                       BABU RAJZOLAS
-// ============================================================
-static void babu_rajzol(Babu b, float x, float y, float mezo) {
-    float cx = x + mezo * 0.5f;
-    float cy = y + mezo * 0.5f;
-    float r  = mezo * 0.36f;
-    float v  = (b.szin == FEHER) ? 1.0f : 0.08f;
-
-    switch (b.tipus) {
-        case GYALOG:
-            rajz_kor(cx, cy - r*0.20f, r*0.55f, v, v, v);
-            rajz_kor(cx, cy + r*0.30f, r*0.35f, v, v, v);
-            break;
-        case BASTYA:
-            rajz_negyzet(cx - r*0.55f, cy - r*0.55f, r*1.10f, r*1.10f, v, v, v);
-            rajz_negyzet(cx - r*0.70f, cy - r*0.70f, r*0.25f, r*0.25f, v, v, v);
-            rajz_negyzet(cx + r*0.45f, cy - r*0.70f, r*0.25f, r*0.25f, v, v, v);
-            break;
-        case HUSZAR:
-            rajz_kor(cx, cy - r*0.10f, r*0.55f, v, v, v);
-            rajz_kor(cx - r*0.35f, cy + r*0.45f, r*0.22f, v, v, v);
-            rajz_kor(cx + r*0.35f, cy + r*0.45f, r*0.22f, v, v, v);
-            break;
-        case FUTO:
-            rajz_kor(cx, cy + r*0.10f, r*0.55f, v, v, v);
-            rajz_kor(cx, cy - r*0.45f, r*0.22f, v, v, v);
-            break;
-        case KIRALYNO:
-            rajz_kor(cx, cy - r*0.05f, r*0.60f, v, v, v);
-            rajz_kor(cx - r*0.45f, cy + r*0.45f, r*0.16f, v, v, v);
-            rajz_kor(cx + r*0.45f, cy + r*0.45f, r*0.16f, v, v, v);
-            rajz_kor(cx, cy + r*0.55f, r*0.16f, v, v, v);
-            break;
-        case KIRALY:
-            rajz_kor(cx, cy - r*0.05f, r*0.60f, v, v, v);
-            rajz_negyzet(cx - r*0.08f, cy + r*0.45f, r*0.16f, r*0.55f, v, v, v);
-            rajz_negyzet(cx - r*0.25f, cy + r*0.62f, r*0.50f, r*0.16f, v, v, v);
-            break;
-        default: break;
-    }
-}
-
-// ============================================================
-//                  PANEL ELRENDEZES + JATEK
+//                  PANEL ELRENDEZES
 // ============================================================
 typedef struct { float x, y, w, h; } Teglalap;
 
-static void panelek_szamol(Teglalap *bal, Teglalap *jobb_felul, Teglalap *jobb_alul) {
+static void panelek_szamol(Teglalap *bal, Teglalap *jf, Teglalap *ja) {
     int szel = rajz_ablak_szel();
     int mag  = rajz_ablak_mag();
 
@@ -379,74 +294,62 @@ static void panelek_szamol(Teglalap *bal, Teglalap *jobb_felul, Teglalap *jobb_a
     float jobb_w = szel - 3 * margo - koz - bal_w;
     if (jobb_w < 220.0f) jobb_w = 220.0f;
 
-    bal->x = margo;
-    bal->y = margo;
-    bal->w = bal_w;
-    bal->h = mag - 2 * margo;
+    bal->x = margo; bal->y = margo;
+    bal->w = bal_w; bal->h = mag - 2 * margo;
 
     float jx = margo + bal_w + koz;
-    float jobb_felul_h = 160.0f;
-    jobb_felul->x = jx;
-    jobb_felul->y = margo;
-    jobb_felul->w = jobb_w;
-    jobb_felul->h = jobb_felul_h;
+    float jfh = 160.0f;
+    jf->x = jx; jf->y = margo;
+    jf->w = jobb_w; jf->h = jfh;
 
-    jobb_alul->x = jx;
-    jobb_alul->y = margo + jobb_felul_h + koz;
-    jobb_alul->w = jobb_w;
-    jobb_alul->h = mag - 2 * margo - jobb_felul_h - koz;
+    ja->x = jx;
+    ja->y = margo + jfh + koz;
+    ja->w = jobb_w;
+    ja->h = mag - 2 * margo - jfh - koz;
 }
 
-static void tabla_pozicio(Teglalap *panel, float *tabla_x, float *tabla_y, float *mezo) {
-    float belso_margo = 24.0f;
-    float rendelkezes = panel->w < panel->h ? panel->w : panel->h;
-    rendelkezes -= 2 * belso_margo;
-    float tabla_m = rendelkezes;
-
-    *mezo    = tabla_m / MERET;
-    *tabla_x = panel->x + (panel->w - tabla_m) / 2.0f;
-    *tabla_y = panel->y + (panel->h - tabla_m) / 2.0f;
+static void tabla_pozicio(Teglalap *panel, float *tx, float *ty, float *mezo) {
+    float belso = 24.0f;
+    float r = panel->w < panel->h ? panel->w : panel->h;
+    r -= 2 * belso;
+    *mezo = r / MERET;
+    *tx = panel->x + (panel->w - r) / 2.0f;
+    *ty = panel->y + (panel->h - r) / 2.0f;
 }
 
 static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
     rajz_torol(0.07f, 0.08f, 0.11f);
 
-    Teglalap bal, jobb_felul, jobb_alul;
-    panelek_szamol(&bal, &jobb_felul, &jobb_alul);
+    Teglalap bal, jf, ja;
+    panelek_szamol(&bal, &jf, &ja);
 
-    // PIROS PANEL: sakktabla
     rajz_negyzet(bal.x, bal.y, bal.w, bal.h, 0.13f, 0.10f, 0.14f);
 
-    float tabla_x, tabla_y, mezo;
-    tabla_pozicio(&bal, &tabla_x, &tabla_y, &mezo);
-    float tabla_m = mezo * MERET;
+    float tx, ty, mezo;
+    tabla_pozicio(&bal, &tx, &ty, &mezo);
+    float tm = mezo * MERET;
 
-    rajz_negyzet(tabla_x - 4, tabla_y - 4, tabla_m + 8, tabla_m + 8,
-                 0.20f, 0.16f, 0.10f);
+    rajz_negyzet(tx - 4, ty - 4, tm + 8, tm + 8, 0.20f, 0.16f, 0.10f);
 
     for (int s = 0; s < MERET; s++) {
         for (int o = 0; o < MERET; o++) {
-            float x = tabla_x + o * mezo;
-            float y = tabla_y + s * mezo;
-
+            float x = tx + o * mezo;
+            float y = ty + s * mezo;
             int vilagos = (s + o) % 2 == 0;
-            float r0, g0, b0;
-            if (vilagos) { r0 = 0.92f; g0 = 0.88f; b0 = 0.78f; }
-            else         { r0 = 0.42f; g0 = 0.48f; b0 = 0.55f; }
-
+            float r0 = vilagos ? 0.92f : 0.42f;
+            float g0 = vilagos ? 0.88f : 0.48f;
+            float b0 = vilagos ? 0.78f : 0.55f;
             rajz_negyzet(x, y, mezo, mezo, r0, g0, b0);
 
             if (kijelolt[s][o])
                 rajz_negyzet(x, y, mezo, mezo, 0.15f, 0.75f, 0.35f);
 
             if (j->van_kivalasztva &&
-                j->kivalasztott_sor == s &&
-                j->kivalasztott_oszlop == o)
+                j->kivalasztott_sor == s && j->kivalasztott_oszlop == o)
                 rajz_negyzet(x, y, mezo, mezo, 0.95f, 0.80f, 0.15f);
 
             Babu b = j->tabla[s][o];
-            if (b.tipus != URES)
-                babu_rajzol(b, x, y, mezo);
+            if (b.tipus != URES) babu_rajzol(b, x, y, mezo);
         }
     }
 
@@ -458,63 +361,52 @@ static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
 
     for (int o = 0; o < 8; o++) {
         float w = rajz_szoveg_szelesseg(oszlopok[o], betu_m);
-        float mx = tabla_x + o * mezo + mezo / 2.0f - w / 2.0f;
-        rajz_szoveg(oszlopok[o], mx, tabla_y + tabla_m + 6.0f,
-                    betu_m, 0.70f, 0.72f, 0.78f);
+        rajz_szoveg(oszlopok[o], tx + o * mezo + mezo/2.0f - w/2.0f,
+                    ty + tm + 6.0f, betu_m, 0.70f, 0.72f, 0.78f);
     }
     for (int s = 0; s < 8; s++) {
-        float my = tabla_y + s * mezo + mezo / 2.0f - betu_m / 2.0f;
-        rajz_szoveg(sorok[s], tabla_x - betu_m - 4.0f, my,
+        rajz_szoveg(sorok[s], tx - betu_m - 4.0f,
+                    ty + s * mezo + mezo/2.0f - betu_m/2.0f,
                     betu_m, 0.70f, 0.72f, 0.78f);
     }
 
-    // KEK PANEL: cim
-    rajz_negyzet(jobb_felul.x, jobb_felul.y, jobb_felul.w, jobb_felul.h,
-                 0.10f, 0.14f, 0.22f);
-    rajz_negyzet(jobb_felul.x, jobb_felul.y, jobb_felul.w, 3.0f,
-                 0.35f, 0.55f, 0.85f);
+    // Kek panel
+    rajz_negyzet(jf.x, jf.y, jf.w, jf.h, 0.10f, 0.14f, 0.22f);
+    rajz_negyzet(jf.x, jf.y, jf.w, 3.0f, 0.35f, 0.55f, 0.85f);
 
     float cim_m = 36.0f;
-    float cim_w = rajz_szoveg_szelesseg("ChessGL", cim_m);
-    float cx = jobb_felul.x + (jobb_felul.w - cim_w) / 2.0f;
-    rajz_szoveg("ChessGL", cx, jobb_felul.y + 30.0f, cim_m,
-                0.95f, 0.85f, 0.55f);
+    float cw = rajz_szoveg_szelesseg("ChessGL", cim_m);
+    rajz_szoveg("ChessGL", jf.x + (jf.w - cw)/2.0f, jf.y + 30.0f,
+                cim_m, 0.95f, 0.85f, 0.55f);
 
-    float alcim_m = 16.0f;
-    float alcim_w = rajz_szoveg_szelesseg("by arosdami", alcim_m);
-    float acx = jobb_felul.x + (jobb_felul.w - alcim_w) / 2.0f;
-    rajz_szoveg("by arosdami", acx, jobb_felul.y + 80.0f, alcim_m,
-                0.55f, 0.65f, 0.80f);
+    float am = 16.0f;
+    float aw = rajz_szoveg_szelesseg("by arosdami", am);
+    rajz_szoveg("by arosdami", jf.x + (jf.w - aw)/2.0f, jf.y + 80.0f,
+                am, 0.55f, 0.65f, 0.80f);
 
-    float cimke_m = 12.0f;
-    float cimke_w = rajz_szoveg_szelesseg("OpenGL 3.3 Core", cimke_m);
-    float ccx = jobb_felul.x + (jobb_felul.w - cimke_w) / 2.0f;
-    rajz_szoveg("OpenGL 3.3 Core", ccx, jobb_felul.y + 115.0f, cimke_m,
-                0.45f, 0.55f, 0.70f);
+    float km = 12.0f;
+    float kw = rajz_szoveg_szelesseg("OpenGL 3.3 Core", km);
+    rajz_szoveg("OpenGL 3.3 Core", jf.x + (jf.w - kw)/2.0f, jf.y + 115.0f,
+                km, 0.45f, 0.55f, 0.70f);
 
-    // ZOLD PANEL: info
-    rajz_negyzet(jobb_alul.x, jobb_alul.y, jobb_alul.w, jobb_alul.h,
-                 0.10f, 0.16f, 0.12f);
-    rajz_negyzet(jobb_alul.x, jobb_alul.y, jobb_alul.w, 3.0f,
-                 0.35f, 0.80f, 0.45f);
+    // Zold panel
+    rajz_negyzet(ja.x, ja.y, ja.w, ja.h, 0.10f, 0.16f, 0.12f);
+    rajz_negyzet(ja.x, ja.y, ja.w, 3.0f, 0.35f, 0.80f, 0.45f);
 
-    float px = jobb_alul.x + 15.0f;
-    float py = jobb_alul.y + 24.0f;
-    float sor_koz = 24.0f;
+    float px = ja.x + 15.0f;
+    float py = ja.y + 24.0f;
+    float sk = 24.0f;
 
-    const char *mod_szoveg = (menu_jatekmod() == MOD_GEP_ELLEN)
-                             ? "Mod: Gep ellen (AI)"
-                             : "Mod: 2 jatekos";
-    rajz_szoveg(mod_szoveg, px, py, 13.0f, 0.55f, 0.70f, 0.60f);
+    const char *mod = (menu_jatekmod() == MOD_GEP_ELLEN)
+                      ? "Mod: Gep ellen (AI)" : "Mod: 2 jatekos";
+    rajz_szoveg(mod, px, py, 13.0f, 0.55f, 0.70f, 0.60f);
     py += 22.0f;
 
     rajz_szoveg("Kovetkezo:", px, py, 12.0f, 0.55f, 0.70f, 0.60f);
     py += 18.0f;
     const char *ki = (j->kovetkezo == FEHER) ? "Vilagos" : "Sotet";
-    float sz_r = (j->kovetkezo == FEHER) ? 0.95f : 0.35f;
-    float sz_g = (j->kovetkezo == FEHER) ? 0.95f : 0.35f;
-    float sz_b = (j->kovetkezo == FEHER) ? 0.95f : 0.35f;
-    rajz_szoveg(ki, px, py, 22.0f, sz_r, sz_g, sz_b);
+    float sz = (j->kovetkezo == FEHER) ? 0.95f : 0.35f;
+    rajz_szoveg(ki, px, py, 22.0f, sz, sz, sz);
     py += 35.0f;
 
     rajz_szoveg("Utolso lepes:", px, py, 12.0f, 0.55f, 0.70f, 0.60f);
@@ -525,9 +417,6 @@ static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
     if (j->jatek_vege == 1) {
         rajz_szoveg("MATT!", px, py, 26.0f, 0.95f, 0.35f, 0.35f);
         py += 40.0f;
-    } else if (j->jatek_vege == 2) {
-        rajz_szoveg("PATT!", px, py, 26.0f, 0.95f, 0.80f, 0.35f);
-        py += 40.0f;
     }
 
     if (easter_egg_aktivalva) {
@@ -536,8 +425,8 @@ static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
     }
 
     py += 8.0f;
-    rajz_szoveg("R = uj jatek",     px, py, 14.0f, 0.55f, 0.70f, 0.60f); py += sor_koz;
-    rajz_szoveg("ESC = fomenu",     px, py, 14.0f, 0.55f, 0.70f, 0.60f); py += sor_koz;
+    rajz_szoveg("R = uj jatek",     px, py, 14.0f, 0.55f, 0.70f, 0.60f); py += sk;
+    rajz_szoveg("ESC = fomenu",     px, py, 14.0f, 0.55f, 0.70f, 0.60f); py += sk;
     rajz_szoveg("F11 = teljes kep", px, py, 14.0f, 0.55f, 0.70f, 0.60f);
 }
 
@@ -546,10 +435,8 @@ static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
 // ============================================================
 static void fomenu_kattintas(void) {
     if (!eger_kattintott()) return;
-
     double mx = rajz_eger_x();
     double my = rajz_eger_y();
-
     for (int i = 0; i < FOMENU_GOMB_DB; i++) {
         Gomb *g = &fomenu_gombok[i];
         if (mx >= g->x && mx <= g->x + g->w &&
@@ -563,19 +450,18 @@ static void fomenu_kattintas(void) {
 static void jatek_kattintas(JatekAllapot *j) {
     if (menu_jatekmod() == MOD_GEP_ELLEN && j->kovetkezo == FEKETE) return;
     if (j->jatek_vege) return;
-
     if (!eger_kattintott()) return;
 
     Teglalap bal, jf, ja;
     panelek_szamol(&bal, &jf, &ja);
-    float tabla_x, tabla_y, mezo;
-    tabla_pozicio(&bal, &tabla_x, &tabla_y, &mezo);
+    float tx, ty, mezo;
+    tabla_pozicio(&bal, &tx, &ty, &mezo);
 
     double mx = rajz_eger_x();
     double my = rajz_eger_y();
 
-    int o = (int)((mx - tabla_x) / mezo);
-    int s = (int)((my - tabla_y) / mezo);
+    int o = (int)((mx - tx) / mezo);
+    int s = (int)((my - ty) / mezo);
 
     if (s < 0 || s >= 8 || o < 0 || o >= 8) return;
 
@@ -630,7 +516,7 @@ static void billentyu_callback(GLFWwindow *w, int key, int sc, int act, int mod)
         rajz_teljes_kepernyo(!rajz_teljes_kepernyos());
     }
     if (key == GLFW_KEY_E) {
-        printf("EASTER EGG: Aros Damjan titkos uzenete! A kave elfogyott, de a kod lefordul!\n");
+        printf("EASTER EGG!\n");
         easter_egg_aktivalva = !easter_egg_aktivalva;
     }
 }
@@ -658,14 +544,17 @@ int main(void) {
     }
 
     menu_inicializalas();
+
+    // Babuk texturajanak betoltese
+    unsigned int babuk_tex = rajz_textura_betolt("resources/babuk.png");
+    babu_textura_beallit(babuk_tex);
+
     JatekAllapot jatek;
     tabla_inicializalas(&jatek);
     int kijelolt[MERET][MERET];
     memset(kijelolt, 0, sizeof(kijelolt));
 
     printf("ChessGL by arosdami elindult.\n");
-    printf("F11 = teljes kepernyo ki/be\n");
-    printf("E   = easter egg\n");
 
     while (!rajz_ablak_bezarva()) {
         Kepernyo k = menu_aktualis();

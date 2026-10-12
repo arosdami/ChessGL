@@ -36,4 +36,12 @@ void   rajz_teljes_kepernyo(int be);
 int    rajz_teljes_kepernyos(void);
 int    rajz_ablak_szel(void);
 int    rajz_ablak_mag(void);
+// Texturazott negyszog
+void rajz_textura_negyszog(unsigned int textura, float x, float y,
+                           float w, float h,
+                           float u0, float v0, float u1, float v1);
+
+// Textura betoltese fajlbol
+unsigned int rajz_textura_betolt(const char *ut);
+
 #endif

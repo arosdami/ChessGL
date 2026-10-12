@@ -420,3 +420,49 @@ int rajz_ablak_mag(void) {
     glfwGetFramebufferSize(ablak, &w, &h);
     return h;
 }
+// ============================================================
+//                    TEXTURA KEZELES
+// ============================================================
+unsigned int rajz_textura_betolt(const char *ut) {
+    int w, h, csatornak;
+    unsigned char *adatok = stbi_load(ut, &w, &h, &csatornak, 4);
+    if (!adatok) {
+        printf("Nem sikerult betolteni: %s\n", ut);
+        return 0;
+    }
+
+    unsigned int tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, adatok);
+    stbi_image_free(adatok);
+    printf("Textura: %s (%dx%d)\n", ut, w, h);
+    return tex;
+}
+
+void rajz_textura_negyszog(unsigned int textura, float x, float y,
+                           float w, float h,
+                           float u0, float v0, float u1, float v1) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glUseProgram(program);
+    glUniform1i(glGetUniformLocation(program, "textura"), 0);
+    glUniform1i(glGetUniformLocation(program, "hasznal_textura"), 1);
+
+    float d[] = {
+        x,     y,     u0, v0, 1,1,1,
+        x + w, y,     u1, v0, 1,1,1,
+        x + w, y + h, u1, v1, 1,1,1,
+        x,     y,     u0, v0, 1,1,1,
+        x + w, y + h, u1, v1, 1,1,1,
+        x,     y + h, u0, v1, 1,1,1,
+    };
+    csucsok_kuld(d, 6);
+
+    glUniform1i(glGetUniformLocation(program, "hasznal_textura"), 0);
+}
