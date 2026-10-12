@@ -6,13 +6,17 @@
 #include <string.h>
 #include <math.h>
 
+#include "stb_image.h"
+
 static GLFWwindow *ablak = NULL;
 static unsigned int program;
 static unsigned int VAO, VBO;
 static int akt_szel = ABLAK_SZEL;
 static int akt_mag  = ABLAK_MAG;
 
-// ---- Shader bet?lt?s ----
+// ============================================================
+//                    SHADER BETOLTES
+// ============================================================
 static unsigned int shader_betolt(const char *ut, GLenum tipus) {
     FILE *f = fopen(ut, "rb");
     if (!f) { printf("Nem talalhato: %s\n", ut); return 0; }
@@ -39,6 +43,28 @@ static unsigned int shader_betolt(const char *ut, GLenum tipus) {
     return sh;
 }
 
+// ============================================================
+//                    ABLAK IKON
+// ============================================================
+static void ablak_ikon_beallit(void) {
+    int w, h, csatornak;
+    unsigned char *pixels = stbi_load("resources/icon.png", &w, &h, &csatornak, 4);
+    if (pixels) {
+        GLFWimage ikon;
+        ikon.width  = w;
+        ikon.height = h;
+        ikon.pixels = pixels;
+        glfwSetWindowIcon(ablak, 1, &ikon);
+        stbi_image_free(pixels);
+        printf("Ablak ikon betoltve: resources/icon.png (%dx%d)\n", w, h);
+    } else {
+        printf("Figyelem: resources/icon.png nem talalhato, alap ikon hasznalva.\n");
+    }
+}
+
+// ============================================================
+//                    INICIALIZALAS
+// ============================================================
 int rajz_inicializalas(void) {
     if (!glfwInit()) return 0;
 
@@ -47,7 +73,7 @@ int rajz_inicializalas(void) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    ablak = glfwCreateWindow(ABLAK_SZEL, ABLAK_MAG, "OpenGL Sakk", NULL, NULL);
+    ablak = glfwCreateWindow(ABLAK_SZEL, ABLAK_MAG, "ChessGL by arosdami", NULL, NULL);
     if (!ablak) { glfwTerminate(); return 0; }
 
     glfwMakeContextCurrent(ablak);
@@ -55,6 +81,10 @@ int rajz_inicializalas(void) {
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return 0;
 
+    // Ablak ikon betoltese
+    ablak_ikon_beallit();
+
+    // Shaderek
     unsigned int vs = shader_betolt("shaders/vertex.glsl", GL_VERTEX_SHADER);
     unsigned int fs = shader_betolt("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
 
@@ -65,12 +95,13 @@ int rajz_inicializalas(void) {
     glDeleteShader(vs);
     glDeleteShader(fs);
 
+    // VAO/VBO
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    // 32*3 cs?cs * 7 float elegend? (k?rh?z)
+    // 32*3 csucs * 7 float elegendo (korhoz)
     glBufferData(GL_ARRAY_BUFFER, 8192 * 7 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
@@ -114,7 +145,7 @@ void rajz_ablak_meret(int szel, int mag) {
     glViewport(0, 0, szel, mag);
 
     glUseProgram(program);
-    // Ortografikus: bal fel?l (0,0), jobb alul (szel, mag)
+    // Ortografikus: bal felul (0,0), jobb alul (szel, mag)
     float proj[16] = {
         2.0f / szel, 0,            0, 0,
         0,          -2.0f / mag,   0, 0,
@@ -125,6 +156,9 @@ void rajz_ablak_meret(int szel, int mag) {
                        1, GL_FALSE, proj);
 }
 
+// ============================================================
+//                    RAJZOLO PRIMITIVEK
+// ============================================================
 static void csucsok_kuld(const float *adatok, int csucs_db) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0,
@@ -147,12 +181,9 @@ void rajz_negyzet(float x, float y, float w, float h,
 
 void rajz_negyzet_atlatszo(float x, float y, float w, float h,
                            float r, float g, float b, float a) {
-    // Az alpha a fragment shaderben nincs, ez?rt tr?kk: keverj?k a h?tt?rrel
-    // Egyszer? megold?s: adott alfa-val kever?nk egy semleges sz?nnel.
-    // Itt egyszer?en a sz?nt s?t?t?tj?k/vil?gos?tjuk az ?tl?tsz?s?g ar?ny?ban.
-    float rr = r * a + 0.0f * (1 - a);
-    float gg = g * a + 0.0f * (1 - a);
-    float bb = b * a + 0.0f * (1 - a);
+    float rr = r * a;
+    float gg = g * a;
+    float bb = b * a;
     rajz_negyzet(x, y, w, h, rr, gg, bb);
 }
 
@@ -185,7 +216,9 @@ void rajz_haromszog(float x1, float y1, float x2, float y2,
     csucsok_kuld(d, 3);
 }
 
-// ---- 5x7 bitmap font ----
+// ============================================================
+//                    5x7 BITMAP FONT
+// ============================================================
 static const unsigned char FONT[96][5] = {
     {0x00,0x00,0x00,0x00,0x00}, // space
     {0x00,0x00,0x5F,0x00,0x00}, // !
@@ -285,7 +318,7 @@ static const unsigned char FONT[96][5] = {
     {0x00,0x00,0x00,0x00,0x00}, // (unused)
 };
 
-// Egy karakter kirajzol?sa
+// Egy karakter kirajzolasa
 static void karakter_rajzol(char c, float x, float y, float meret,
                             float r, float g, float b) {
     if (c < 32 || c > 126) c = '?';
@@ -320,6 +353,9 @@ float rajz_szoveg_szelesseg(const char *szoveg, float meret) {
     return strlen(szoveg) * 6 * px;
 }
 
+// ============================================================
+//                    EGER ES BILLENTYU
+// ============================================================
 int rajz_gomb_lenyomva(int gomb) {
     return glfwGetMouseButton(ablak, gomb) == GLFW_PRESS;
 }
@@ -336,12 +372,13 @@ double rajz_eger_y(void) {
     return y;
 }
 
-// ---- Id? (anim?ci?hoz) ----
+// ============================================================
+//                    IDO ES TELJES KEPERNYO
+// ============================================================
 double rajz_ido(void) {
     return glfwGetTime();
 }
 
-// ---- Teljes k?perny? ----
 static int teljes_kepernyos = 0;
 static int elozo_x = 100, elozo_y = 100, elozo_w = ABLAK_SZEL, elozo_h = ABLAK_MAG;
 
@@ -349,18 +386,21 @@ void rajz_teljes_kepernyo(int be) {
     if (be == teljes_kepernyos) return;
 
     if (be) {
-        // Mentj?k az ablak poz?ci?j?t ?s m?ret?t
         glfwGetWindowPos(ablak, &elozo_x, &elozo_y);
         glfwGetWindowSize(ablak, &elozo_w, &elozo_h);
 
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mod = glfwGetVideoMode(monitor);
-        glfwSetWindowMonitor(ablak, monitor, 0, 0, mod->width, mod->height, mod->refreshRate);
+        glfwSetWindowMonitor(ablak, monitor, 0, 0,
+                             mod->width, mod->height, mod->refreshRate);
         teljes_kepernyos = 1;
     } else {
-        glfwSetWindowMonitor(ablak, NULL, elozo_x, elozo_y, elozo_w, elozo_h, 0);
+        glfwSetWindowMonitor(ablak, NULL, elozo_x, elozo_y,
+                             elozo_w, elozo_h, 0);
         teljes_kepernyos = 0;
     }
+
+    glfwPollEvents();
 
     int w, h;
     glfwGetFramebufferSize(ablak, &w, &h);
