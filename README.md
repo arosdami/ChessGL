@@ -1,6 +1,4 @@
 
-# ChessGL
-
 <div align="center">
   <img src="screenshots/logo.png" alt="ChessGL logo" width="260" />
 </div>
@@ -13,10 +11,9 @@
 </div>
 
 <p align="center">
-  <strong>Modern OpenGL sakkjáték C nyelven</strong>
-</p>
-
 Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
+
+</p>
 
 ## Jellemzők
 
