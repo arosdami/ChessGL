@@ -24,10 +24,10 @@ typedef struct {
 } Gomb;
 
 static Gomb fomenu_gombok[] = {
-    {"Uj jatek (2 jatekos)", 0, 0, 0, 0},
-    {"Gep ellen",            0, 0, 0, 0},
-    {"Nevjegy",              0, 0, 0, 0},
-    {"Kilepes",              0, 0, 0, 0},
+    {"Duel",     0, 0, 0, 0},
+    {"AiChess",  0, 0, 0, 0},
+    {"Nevjegy",  0, 0, 0, 0},
+    {"Kilepes",  0, 0, 0, 0},
 };
 static const int FOMENU_GOMB_DB = 4;
 
@@ -73,7 +73,7 @@ static void fomenu_rajzol(void) {
 
     float blokk_y = (mag - blokk_mag) / 2.0f;
 
-    const char *cim = "CHESSGL";
+    const char *cim = "ChessGL";
     float cim_szel  = rajz_szoveg_szelesseg(cim, cim_meret);
     rajz_szoveg(cim, (szel - cim_szel) / 2.0f, blokk_y,
                 cim_meret, 0.95f, 0.85f, 0.55f);
@@ -135,53 +135,26 @@ static void nevjegy_rajzol(void) {
     rajz_torol(0.07f, 0.08f, 0.11f);
 
     float scale = 1.0f;
-    if (mag < 950.0f) scale = mag / 950.0f;
+    if (mag < 800.0f) scale = mag / 800.0f;
     if (scale < 0.55f) scale = 0.55f;
 
-    // Kep
-    float kep_sugar = 75.0f * scale;
+    // ---- Meretek ----
+    float kep_sugar = 80.0f * scale;
     float kep_sav   = 2 * kep_sugar + 30.0f * scale;
 
-    // Cim
-    float cim_meret = 36.0f * scale;
-    float cim_sav   = cim_meret + 20.0f * scale;
+    float cim_meret = 40.0f * scale;
+    float cim_sav   = cim_meret + 30.0f * scale;
 
-    // Fejlec
-    float cimke_m = 13.0f * scale;
-    float ertek_m = 22.0f * scale;
-    float fejlec_par_mag = cimke_m + 6.0f * scale + ertek_m + 18.0f * scale;
-    float fejlec_sav = 3 * fejlec_par_mag;
-
-    // Leiras
-    float lcim_m    = 15.0f * scale;
-    float lszov_m   = 13.0f * scale;
-    float lsor_koz  = 19.0f * scale;
-
-    const char *leiras[] = {
-        "A ChessGL egy klasszikus sakkjatek, C nyelven,",
-        "modern OpenGL 3.3 Core Profile grafikaval.",
-        "",
-        "A megjelenites shader-alapu: a babuk, a sakktabla",
-        "es a menuelemek sajat geometriai primitivumokbol",
-        "epulnek fel, sajat vertex- es fragment shaderrel.",
-        "",
-        "A jateklogika sajat implementacio: minden babu",
-        "szabalyos lepese, utkozesvizsgalat, gyalogatvaltozas.",
-        "",
-        "A gep elleni mod minimax algoritmuson alapul,",
-        "alpha-beta vagassal. 2 jatekos mod is elerheto."
-    };
-    int leiras_db = sizeof(leiras) / sizeof(leiras[0]);
-
-    float doboz_felso = 50.0f * scale;
-    float doboz_also  = 20.0f * scale;
-    float doboz_mag   = doboz_felso + leiras_db * lsor_koz + doboz_also;
+    float cimke_m = 14.0f * scale;
+    float ertek_m = 24.0f * scale;
+    float par_mag = cimke_m + 6.0f * scale + ertek_m + 24.0f * scale;
+    float fejlec_sav = 3 * par_mag;
 
     float link_sav = 60.0f * scale;
-    float sziv_sav = 55.0f * scale;
+    float sziv_sav = 60.0f * scale;
 
-    float blokk_mag = kep_sav + cim_sav + fejlec_sav + 20.0f * scale
-                      + doboz_mag + link_sav + sziv_sav;
+    // ---- Blokk magassag ----
+    float blokk_mag = kep_sav + cim_sav + fejlec_sav + link_sav + sziv_sav;
 
     float blokk_y = (mag - blokk_mag) / 2.0f;
     if (blokk_y < 15.0f) blokk_y = 15.0f;
@@ -224,49 +197,19 @@ static void nevjegy_rajzol(void) {
         float ew = rajz_szoveg_szelesseg(ertekek[i], ertek_m);
         rajz_szoveg(ertekek[i], (szel - ew) / 2.0f, y,
                     ertek_m, 0.95f, 0.92f, 0.78f);
-        y += ertek_m + 18.0f * scale;
+        y += ertek_m + 24.0f * scale;
     }
-
-    y += 20.0f * scale;
-
-    // ---- LEIRAS DOBOZ ----
-    float doboz_w = szel * 0.55f;
-    if (doboz_w < 500.0f) doboz_w = 500.0f;
-    if (doboz_w > 900.0f) doboz_w = 900.0f;
-
-    float doboz_x = (szel - doboz_w) / 2.0f;
-    float doboz_y = y;
-
-    rajz_negyzet(doboz_x, doboz_y, doboz_w, doboz_mag,
-                 0.12f, 0.14f, 0.19f);
-    rajz_negyzet(doboz_x, doboz_y, doboz_w, 2.0f,
-                 0.35f, 0.65f, 0.80f);
-
-    const char *lcim = "A programrol";
-    float lcim_w = rajz_szoveg_szelesseg(lcim, lcim_m);
-    rajz_szoveg(lcim, (szel - lcim_w) / 2.0f, doboz_y + 16.0f * scale,
-                lcim_m, 0.70f, 0.85f, 0.75f);
-
-    float ly = doboz_y + doboz_felso;
-    for (int i = 0; i < leiras_db; i++) {
-        float w = rajz_szoveg_szelesseg(leiras[i], lszov_m);
-        rajz_szoveg(leiras[i], doboz_x + (doboz_w - w) / 2.0f, ly,
-                    lszov_m, 0.82f, 0.85f, 0.88f);
-        ly += lsor_koz;
-    }
-
-    y += doboz_mag + 20.0f * scale;
 
     // ---- GITHUB ----
-    float gc_m = 12.0f * scale;
+    float gc_m = 14.0f * scale;
     const char *gh_c = "GitHub:";
     float gc_w = rajz_szoveg_szelesseg(gh_c, gc_m);
     rajz_szoveg(gh_c, (szel - gc_w) / 2.0f, y, gc_m,
                 0.55f, 0.62f, 0.72f);
-    y += gc_m + 6.0f * scale;
+    y += gc_m + 8.0f * scale;
 
-    float gl_m = 16.0f * scale;
-    const char *gh_l = "https://github.com/arosdami/ChessGL";
+    float gl_m = 18.0f * scale;
+    const char *gh_l = "github.com/arosdami/ChessGL";
     float gl_w = rajz_szoveg_szelesseg(gh_l, gl_m);
     rajz_szoveg(gh_l, (szel - gl_w) / 2.0f, y, gl_m,
                 0.55f, 0.75f, 1.00f);
@@ -275,13 +218,13 @@ static void nevjegy_rajzol(void) {
 
     // ---- SZIV ----
     sziv_rajzol(szel / 2.0f, y + 30.0f * scale * 0.6f,
-                32.0f * scale, 0.95f, 0.20f, 0.30f);
+                36.0f * scale, 0.95f, 0.20f, 0.30f);
 
     // ---- SUGO ----
     const char *sugo = "Nyomj ESC-et a visszalepeshez!";
     float sm = 15.0f * scale;
     float sw = rajz_szoveg_szelesseg(sugo, sm);
-    rajz_szoveg(sugo, (szel - sw) / 2.0f, mag - 22.0f,
+    rajz_szoveg(sugo, (szel - sw) / 2.0f, mag - 25.0f,
                 sm, 0.55f, 0.58f, 0.65f);
 }
 
@@ -576,7 +519,6 @@ int main(void) {
 
     menu_inicializalas();
 
-    // Texturak betoltese
     printf("--- Texturak betoltese ---\n");
     unsigned int babuk_tex = rajz_textura_betolt("resources/babuk.png");
     babu_textura_beallit(babuk_tex);
