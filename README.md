@@ -164,4 +164,30 @@ https://github.com/arosdami/ChessGL
 
 ## Licenc
 
-Ez a projekt oktatási és bemutató célra készült, és tanulási célból szabadon felhasználható.
+Ez a projekt a [MIT License](LICENSE) feltételei alapján kerül kiadásra.
+
+A licenc lehetővé teszi, hogy a szoftvert szabadon használni, másolni, módosítani és terjeszteni lehessen, mindaddig, amíg a szerzői jogi megjegyzés és a licenc szövege megmarad a másolatokban és a módosított változatokban is.
+
+A szoftver „adott állapotában” kerül biztosításra, mindenféle garancia nélkül, beleértve, de nem kizárólag a forgalomképességre, egy adott célra való alkalmasságra és nem sértő jellegre vonatkozó garanciákat.
+
+A teljes szöveg elérhető a [LICENSE](LICENSE) fájlban.
+
+> Copyright (c) 2026 Aros Damján
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
