@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="screenshots/logo.png" alt="ChessGL logo" width="260" />
+  <img src="screenshots/logo.png" alt="ChessGL logo" width="800" />
 </div>
 
 <div align="center">
