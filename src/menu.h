@@ -5,7 +5,8 @@ typedef enum {
     KEPERNYO_FOMENU = 0,
     KEPERNYO_JATEK,
     KEPERNYO_NEVJEGY,
-    KEPERNYO_KILEPES
+    KEPERNYO_KILEPES,
+    KEPERNYO_AI_NEHEZSEG
 } Kepernyo;
 
 // Játékmód

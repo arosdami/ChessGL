@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int ai_melyseg = 2;
+
+void ai_nehezseg_beallit(int melyseg) {
+    if (melyseg < 1) melyseg = 1;
+    if (melyseg > 3) melyseg = 3;
+    ai_melyseg = melyseg;
+}
+
+int ai_nehezseg(void) {
+    return ai_melyseg;
+}
+
 // ---- Bábu értékek ----
 static int babu_ertek(BabuTipus t) {
     switch (t) {
@@ -134,8 +146,7 @@ int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
                     Babu le = lepes_szimulal(j, sr, so, cr, co);
                     j->kovetkezo = (szin == FEHER) ? FEKETE : FEHER;
 
-                    // Minimax 2 mélységgel
-                    int ertek = minimax(j, 2, -1000000, 1000000, szin);
+                    int ertek = minimax(j, ai_melyseg, -1000000, 1000000, szin);
 
                     // Visszaállítás
                     j->kovetkezo = szin;

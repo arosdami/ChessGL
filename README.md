@@ -93,15 +93,18 @@ Ez lefordítja a projektet, és létrehozza a **ChessGL.exe** futtatható állom
 |------|---------|
 | **Bal egér gomb** | Bábu kiválasztása, majd célmező kattintása |
 | **ESC** | Vissza a főmenübe / Kilépés |
+| **R** | Új játék indítása az aktuális módban |
 | **F11** | Teljes képernyő ki/be |
 
 ## Játékmenet
 
 1. Indítás után a **főmenüben** vagy.
-2. Válaszd a **„Duel"** (2 játékos) vagy az **„AiChess"** (gép ellen) opciót.
-3. A sakktáblán kattints a saját bábúdra – a lehetséges lépések zölddel kiemelődnek.
-4. Kattints a célmezőre a lépés végrehajtásához.
-5. A játék addig tart, amíg valamelyik fél mattot nem kap, vagy patt nem lesz.
+2. Válaszd az **„Új játék"** (2 játékos) vagy az **„AiChess"** (gép ellen) opciót.
+3. Az AiChess módban válassz **könnyű**, **normál** vagy **erős** AI-t.
+4. A sakktáblán kattints a saját bábúdra – a lehetséges lépések zölddel kiemelődnek.
+5. Kattints a célmezőre a lépés végrehajtásához.
+6. Az **ESC** a főmenübe visz, ahol a **Folytatás** gombbal ugyanaz a parti folytatható.
+7. A játék addig tart, amíg valamelyik fél mattot nem kap, vagy patt nem lesz.
 
 ## Projekt struktúra
 
