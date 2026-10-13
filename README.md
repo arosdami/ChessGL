@@ -6,8 +6,8 @@
 <div align="center">
   <a href="https://github.com/arosdami/ChessGL"><img src="https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github" alt="GitHub repo" /></a>
   <a href="https://github.com/arosdami/ChessGL/releases"><img src="https://img.shields.io/badge/Release-Download-2ea44f?style=for-the-badge" alt="Download release" /></a>
-  <a href="#forditas-es-futtatas"><img src="https://img.shields.io/badge/Build-Run-0A66C2?style=for-the-badge" alt="Build and run" /></a>
-  <img src="https://img.shields.io/badge/How-to-Play-FFB000?style=for-the-badge" alt="How to play" />
+  <a href="#build--run"><img src="https://img.shields.io/badge/Build-Run-0A66C2?style=for-the-badge" alt="Build and run" /></a>
+  <a href="#gameplay"><img src="https://img.shields.io/badge/How_to_Play-FFB000?style=for-the-badge" alt="How to play" /></a>
 </div>
 
 <p align="center">
