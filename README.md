@@ -1,160 +1,166 @@
-﻿
-<div align="center">
+# ChessGL
 
-![ChessGL Logo](screenshots/logo.png)
-
-</div>
+Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
 
 <div align="center">
 
-Egy modern, C nyelven íródott sakkjáték OpenGL 3.3 Core Profile grafikával.
-A projekt egy egyetemi bemutató keretein belül készült, saját shaderekkel,
-saját sakk-logikával és gép elleni móddal.
+![ChessGL logo](screenshots/logo.png)
 
 </div>
 
-## Képernyőkép
+## Jellemzők
+
+- Kétjátékos mód ugyanazon a gépen, felváltva lépéssel
+- AI ellen játszható mód (minimax + alpha-beta vágás)
+- Teljes sakklogika:
+  - normál lépések minden bábúhoz
+  - ütésvizsgálat
+  - gyalogátváltozás
+  - sakk, matt és patt felismerés
+- Sötét, modern felület és főmenü
+- Textúrázott sakkfigurák sprite sheet-ből
+- Kijelölt bábu és lehetséges lépések vizuális jelölése
+- Teljes képernyős mód (`F11`)
+- Saját EXE ikon és ablakikon
+
+## Képernyőképek
+
+![Főmenü](screenshots/mainmenu.png)
 
 ![Játéktér](screenshots/sakk.png)
 
-## Készítette
-
-- **Név:** Aros Damján
-- **Tantárgy:** 3D modellezés és játékfejlesztés
-- **Oktató:** Dr. Mileff Péter
-
 ## Technológiák
 
-- **Nyelv:** C (C11)
-- **Grafika:** OpenGL 3.3 Core Profile – saját vertex- és fragment shader
-- **Ablakkezelés:** GLFW 3.5
-- **OpenGL függvénybetöltő:** GLAD
-- **Képbetöltés:** stb_image (single-header library)
-- **Fordító:** GCC (MinGW-w64 UCRT)
+- Nyelv: C (C11)
+- Grafika: OpenGL 3.3 Core Profile
+- Ablakkezelés: GLFW 3.x
+- OpenGL függvénybetöltés: GLAD
+- Képbetöltés: stb_image.h
+- Fordító: GCC / MinGW-w64
 
-## Funkciók
+## Szükséges környezet
 
-- Modern, sötét színvilágú főmenü
-- Kétjátékos mód (ugyanazon a gépen, felváltva lépve)
-- Gép elleni mód (minimax algoritmus alpha-béta vágással)
-- Teljes sakk-szabályrendszer:
-  - Minden bábu szabályos lépése (gyalog, bástya, huszár, futó, királynő, király)
-  - Ütésvizsgálat
-  - Gyalogátváltozás (királynővé)
-  - Sakk-matt és patt felismerése
-- Textúrázott sakkfigurák – minden bábu egyedi képpel
-- Saját arckép a névjegyben – kör alakban megjelenítve
-- Kijelölt bábu és a lehetséges lépések vizuális jelölése
-- Egérkezelés
-- Teljes képernyős mód (F11)
-- Saját sakkfigura-ikon az EXE fájlon és az ablakon
+A projekt Windows rendszeren készül és fut, MinGW-w64 GCC-vel. A repo már tartalmazza a szükséges GLFW és GLAD fájlokat is.
 
-## Fordítás és futtatás
+### Könyvtárak és erőforrások
 
-A projekt Windows alatt, MinGW-w64 GCC-vel és GLFW-vel fordítható.
+- `lib/` – GLFW statikus könyvtárak
+- `include/` – GLAD és stb_image fejlécfájlok
+- `src/` – a játék forráskódja
+- `shaders/` – OpenGL vertex/fragment shader fájlok
+- `resources/` – ikonok, textúrák, képek
+- `screenshots/` – képernyőképek a dokumentációhoz
 
-### Szükséges könyvtárak
+## Gyorsindítás
 
-- **GLFW 3.5** – ablakkezelés és bemenet (a repóban megtalálható a **lib/** mappában)
-- **GLAD** – OpenGL függvénybetöltő (a **src/glad.c** és az **include/glad/** mappában)
-- **stb_image.h** – PNG-kép betöltő könyvtár (az **include/** mappában)
-- **OpenGL** – a rendszer része
+A legkönnyebb mód a projekt futtatására a meglévő build szkriptek használata a `build_files/` mappából:
 
-### Fordítási folyamat
+```bat
+build_files\build_and_run.bat
+```
 
-A program három lépésben épül fel:
+Ez buildeli a programot, és elindítja a `ChessGL.exe` fájlt.
 
-1. **Ikon erőforrás fordítása** – a **resources/sakk.ico** ikonból **windres**
-   segítségével **ikon.o** objektumfájl készül.
-2. **Forrásfájlok fordítása** – a **src/** mappában található összes **.c** fájlt
-   a **gcc** lefordítja **.o** objektumfájlokká.
-3. **Linkelés** – az objektumfájlokat és a GLFW könyvtárat összefűzi a linker,
-   és elkészül a **ChessGL.exe** futtatható állomány.
+## Manuális fordítás
 
-### Manuális fordítás
+Nyisd meg a PowerShellt a projekt gyökerében, majd add ki:
 
-Nyiss egy PowerShell ablakot a projekt mappájában, és add ki a következő parancsot:
+```bat
+windres resources\ikon.rc -O coff -o resources\ikon.o
 
-    gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
-        src/main.c src/tabla.c src/rajz.c src/menu.c src/ai.c src/babu.c src/glad.c src/stb_impl.c ^
-        resources/ikon.o ^
-        -o ChessGL.exe ^
-        -Llib -lglfw3 -lopengl32 -lgdi32 -lm
+gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
+    src\main.c src\tabla.c src\rajz.c src\menu.c src\ai.c src\babu.c src\glad.c src\stb_impl.c ^
+    resources\ikon.o ^
+    -o ChessGL.exe ^
+    -Llib -lglfw3 -lopengl32 -lgdi32 -lm
+```
 
-Ez lefordítja a projektet, és létrehozza a **ChessGL.exe** futtatható állományt.
+Ez létrehozza a fordított futtatható fájlt:
 
-### Futtatás
+```bat
+.\ChessGL.exe
+```
 
-    .\ChessGL.exe
+Ha csak ikon nélkül akarod fordítani, a `resources\ikon.o` részt elhagyhatod.
 
 ## Irányítás
 
 | Gomb | Funkció |
 |------|---------|
-| **Bal egér gomb** | Bábu kiválasztása, majd célmező kattintása |
-| **ESC** | Vissza a főmenübe / Kilépés |
-| **R** | Új játék indítása az aktuális módban |
-| **F11** | Teljes képernyő ki/be |
+| Bal egérgomb | Bábu kiválasztása, majd célmező kijelölése / lépés végrehajtása |
+| ESC | Vissza a főmenübe vagy kilépés |
+| R | Új játék indítása az aktuális módban |
+| F11 | Teljes képernyő ki/be |
 
 ## Játékmenet
 
-1. Indítás után a **főmenüben** vagy.
-2. Válaszd az **„Új játék"** (2 játékos) vagy az **„AiChess"** (gép ellen) opciót.
-3. Az AiChess módban válassz **könnyű**, **normál** vagy **erős** AI-t.
-4. A sakktáblán kattints a saját bábúdra – a lehetséges lépések zölddel kiemelődnek.
+1. Indítás után a főmenüben válaszd az `Új játék` vagy az `AiChess` opciót.
+2. Az AI módnál kiválasztható a nehézségi szint: könnyű, normál vagy erős.
+3. Kattints a saját bábudra a sakktáblán.
+4. A lehetséges lépések zölddel lesznek jelölve.
 5. Kattints a célmezőre a lépés végrehajtásához.
-6. Az **ESC** a főmenübe visz, ahol a **Folytatás** gombbal ugyanaz a parti folytatható.
-7. A játék addig tart, amíg valamelyik fél mattot nem kap, vagy patt nem lesz.
+6. `ESC` segítségével visszaléphetsz a főmenübe, és a `Folytatás` gombbal visszatérhetsz a játékhoz.
+7. A játék addig tart, amíg valamelyik játékos mattot kap, vagy a pozíció pattállásba kerül.
 
 ## Projekt struktúra
 
-    ChessGL/
-    |-- ChessGL.exe            (a lefordított program)
-    |-- glfw3.dll              (GLFW dinamikus könyvtár)
-    |-- README.md
-    |
-    |-- include/               (fejléc fájlok)
-    |   |-- GLFW/
-    |   |-- glad/
-    |   |-- KHR/
-    |   +-- stb_image.h
-    |
-    |-- lib/                   (GLFW statikus könyvtárak)
-    |-- shaders/               (OpenGL shaderek)
-    |   |-- vertex.glsl
-    |   +-- fragment.glsl
-    |
-    |-- resources/             (erőforrások)
-    |   |-- sakk.ico           (EXE ikon)
-    |   |-- icon.png           (ablak ikon)
-    |   |-- babuk.png          (sakkfigurák sprite sheet)
-    |   |-- creator.png        (szerzői arckép)
-    |   +-- ikon.rc            (ikon erőforrás fájl)
-    |
-    |-- screenshots/           (képernyőképek)
-    +-- src/                   (forrásfájlok)
-        |-- main.c             (fő program, menük, képernyőkezelés)
-        |-- tabla.c / tabla.h  (sakk logika, bábuk lépései)
-        |-- rajz.c / rajz.h    (OpenGL primitívek, szöveg- és textúra-kezelés)
-        |-- babu.c / babu.h    (sakkfigurák rajzolása)
-        |-- menu.c / menu.h    (képernyő-váltás kezelése)
-        |-- ai.c / ai.h        (minimax AI alpha-béta vágással)
-        |-- stb_impl.c         (stb_image implementáció)
-        +-- glad.c             (GLAD betöltő)
+```text
+ChessGL/
+├── ChessGL.exe             # Fordított futtatható program
+├── glfw3.dll               # GLFW DLL
+├── README.md               # Projekt leírás
+├── LICENSE                 # Licenc
+├── lib/                    # GLFW statikus könyvtárak
+├── include/                # GLAD és stb_image fejlécfájlok
+├── shaders/                # OpenGL shader fájlok
+│   ├── vertex.glsl
+│   └── fragment.glsl
+├── resources/              # Ikonok, textúrák és képek
+│   ├── sakk.ico
+│   ├── icon.png
+│   ├── babuk.png
+│   ├── creator.png
+│   ├── ikon.rc
+│   └── ikon.o              # Opcionális fordítási objektum
+├── screenshots/            # Képernyőképek a dokumentációhoz
+│   ├── logo.png
+│   ├── mainmenu.png
+│   └── sakk.png
+├── src/                    # Forrásfájlok
+│   ├── main.c
+│   ├── tabla.c / tabla.h
+│   ├── rajz.c / rajz.h
+│   ├── babu.c / babu.h
+│   ├── menu.c / menu.h
+│   ├── ai.c / ai.h
+│   ├── glad.c
+│   ├── stb_impl.c
+│   └── ...
+├── build_files/
+│   ├── build.bat
+│   ├── build_and_run.bat
+│   └── run.bat
+└── .gitignore
+```
 
 ## Fejlesztési megjegyzések
 
-- A program **NEM** használ külső 3D modell fájlokat – a sakkfigurák egyetlen
-  **sprite sheet** textúráról (babuk.png) töltődnek be.
-- A **szövegrenderelés** egy saját 5×7-es bitmap fonttal történik.
-- A **shaderek** külön fájlban vannak (shaders/ mappa).
-- Az **AI** a minimax algoritmust használja alpha-béta vágással.
-- A **textúrák** stb_image.h-val töltődnek be, ami egy header-only könyvtár.
+- A program nem használ külső 3D modellt, a sakkfigurák egyetlen sprite sheet textúrából töltődnek be.
+- A szöveg renderelése saját bitmap fonttal történik.
+- A shader fájlok külön mappában vannak (`shaders/`).
+- Az AI minimax algoritmust használ alpha-beta vágással.
+- A textúrák betöltéséhez a `stb_image.h` header-only könyvtár szolgál.
 
 ## Ismert korlátozások
 
-- Nincs sáncolás (castling) és en passant támogatás
-- Az AI nem veszi észre a közvetlen matt-veszélyt, csak az anyagi előnyt
+- Nincs sáncolás és en passant támogatás
+- Az AI nem mindig veszi észre a közvetlen matt- vagy veszélyhelyzetet, csak az anyagi előnyt számolja
+
+## Készítette
+
+- Név: Aros Damján
+- Tantárgy: 3D modellezés és játékfejlesztés
+- Oktató: Dr. Mileff Péter
 
 ## GitHub
 
@@ -162,5 +168,4 @@ https://github.com/arosdami/ChessGL
 
 ## Licenc
 
-Ez a projekt egyetemi bemutató céljából készült. Szabadon felhasználható
-tanulási célokra.
+Ez a projekt oktatási és bemutató célra készült, és tanulási célból szabadon felhasználható.
