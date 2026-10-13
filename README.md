@@ -1,9 +1,19 @@
 ﻿![ChessGL Logo](screenshots/logo.png)
 
 
+<div align="center">
+
+![ChessGL Logo](screenshots/logo.png)
+
+</div>
+
+<div align="center">
+
 Egy modern, C nyelven íródott sakkjáték OpenGL 3.3 Core Profile grafikával.
 A projekt egy egyetemi bemutató keretein belül készült, saját shaderekkel,
 saját sakk-logikával és gép elleni móddal.
+
+</div>
 
 ## Képernyőkép
 
