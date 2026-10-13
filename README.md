@@ -30,10 +30,6 @@ Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafi
 - Teljes képernyős mód (`F11`)
 - Saját EXE ikon és ablakikon
 
-## Képernyőképek
-
-![Főmenü](screenshots/mainmenu.png)
-
 ![Játéktér](screenshots/sakk.png)
 
 ## Technológiák
