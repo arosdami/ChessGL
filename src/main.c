@@ -11,6 +11,11 @@
 #include "babu.h"
 
 // ============================================================
+//                    GLOBALIS VALTOZOK
+// ============================================================
+static unsigned int creator_textura = 0;
+
+// ============================================================
 //                    GOMBOK A FOMENUBEN
 // ============================================================
 typedef struct {
@@ -130,20 +135,27 @@ static void nevjegy_rajzol(void) {
     rajz_torol(0.07f, 0.08f, 0.11f);
 
     float scale = 1.0f;
-    if (mag < 900.0f) scale = mag / 900.0f;
+    if (mag < 950.0f) scale = mag / 950.0f;
     if (scale < 0.55f) scale = 0.55f;
 
-    float cim_meret = 42.0f * scale;
-    float cim_sav   = cim_meret + 30.0f * scale;
+    // Kep
+    float kep_sugar = 75.0f * scale;
+    float kep_sav   = 2 * kep_sugar + 30.0f * scale;
 
+    // Cim
+    float cim_meret = 36.0f * scale;
+    float cim_sav   = cim_meret + 20.0f * scale;
+
+    // Fejlec
     float cimke_m = 13.0f * scale;
     float ertek_m = 22.0f * scale;
-    float fejlec_par_mag = cimke_m + 6.0f * scale + ertek_m + 20.0f * scale;
+    float fejlec_par_mag = cimke_m + 6.0f * scale + ertek_m + 18.0f * scale;
     float fejlec_sav = 3 * fejlec_par_mag;
 
-    float lcim_m    = 16.0f * scale;
-    float lszov_m   = 14.0f * scale;
-    float lsor_koz  = 20.0f * scale;
+    // Leiras
+    float lcim_m    = 15.0f * scale;
+    float lszov_m   = 13.0f * scale;
+    float lsor_koz  = 19.0f * scale;
 
     const char *leiras[] = {
         "A ChessGL egy klasszikus sakkjatek, C nyelven,",
@@ -161,26 +173,41 @@ static void nevjegy_rajzol(void) {
     };
     int leiras_db = sizeof(leiras) / sizeof(leiras[0]);
 
-    float doboz_felso = 55.0f * scale;
-    float doboz_also  = 25.0f * scale;
+    float doboz_felso = 50.0f * scale;
+    float doboz_also  = 20.0f * scale;
     float doboz_mag   = doboz_felso + leiras_db * lsor_koz + doboz_also;
 
-    float link_sav = 70.0f * scale;
-    float sziv_sav = 60.0f * scale;
+    float link_sav = 60.0f * scale;
+    float sziv_sav = 55.0f * scale;
 
-    float blokk_mag = cim_sav + fejlec_sav + 30.0f * scale
+    float blokk_mag = kep_sav + cim_sav + fejlec_sav + 20.0f * scale
                       + doboz_mag + link_sav + sziv_sav;
 
     float blokk_y = (mag - blokk_mag) / 2.0f;
-    if (blokk_y < 20.0f) blokk_y = 20.0f;
+    if (blokk_y < 15.0f) blokk_y = 15.0f;
 
+    float y = blokk_y;
+
+    // ---- KEP (kor alakban) ----
+    if (creator_textura != 0) {
+        rajz_textura_kor(creator_textura, szel / 2.0f,
+                         y + kep_sugar, kep_sugar);
+    } else {
+        rajz_kor(szel / 2.0f, y + kep_sugar, kep_sugar,
+                 0.35f, 0.65f, 0.80f);
+    }
+
+    y += kep_sav;
+
+    // ---- CIM ----
     const char *cim = "NEVJEGY";
     float cim_szel = rajz_szoveg_szelesseg(cim, cim_meret);
-    rajz_szoveg(cim, (szel - cim_szel) / 2.0f, blokk_y,
+    rajz_szoveg(cim, (szel - cim_szel) / 2.0f, y,
                 cim_meret, 0.95f, 0.85f, 0.55f);
 
-    float y = blokk_y + cim_sav;
+    y += cim_sav;
 
+    // ---- FEJLEC ----
     const char *cimkek[] = { "Keszitette:", "Tantargy:", "Oktato:" };
     const char *ertekek[] = {
         "Aros Damjan",
@@ -197,11 +224,12 @@ static void nevjegy_rajzol(void) {
         float ew = rajz_szoveg_szelesseg(ertekek[i], ertek_m);
         rajz_szoveg(ertekek[i], (szel - ew) / 2.0f, y,
                     ertek_m, 0.95f, 0.92f, 0.78f);
-        y += ertek_m + 20.0f * scale;
+        y += ertek_m + 18.0f * scale;
     }
 
-    y += 30.0f * scale;
+    y += 20.0f * scale;
 
+    // ---- LEIRAS DOBOZ ----
     float doboz_w = szel * 0.55f;
     if (doboz_w < 500.0f) doboz_w = 500.0f;
     if (doboz_w > 900.0f) doboz_w = 900.0f;
@@ -216,7 +244,7 @@ static void nevjegy_rajzol(void) {
 
     const char *lcim = "A programrol";
     float lcim_w = rajz_szoveg_szelesseg(lcim, lcim_m);
-    rajz_szoveg(lcim, (szel - lcim_w) / 2.0f, doboz_y + 18.0f * scale,
+    rajz_szoveg(lcim, (szel - lcim_w) / 2.0f, doboz_y + 16.0f * scale,
                 lcim_m, 0.70f, 0.85f, 0.75f);
 
     float ly = doboz_y + doboz_felso;
@@ -229,14 +257,15 @@ static void nevjegy_rajzol(void) {
 
     y += doboz_mag + 20.0f * scale;
 
-    float gc_m = 13.0f * scale;
+    // ---- GITHUB ----
+    float gc_m = 12.0f * scale;
     const char *gh_c = "GitHub:";
     float gc_w = rajz_szoveg_szelesseg(gh_c, gc_m);
     rajz_szoveg(gh_c, (szel - gc_w) / 2.0f, y, gc_m,
                 0.55f, 0.62f, 0.72f);
     y += gc_m + 6.0f * scale;
 
-    float gl_m = 17.0f * scale;
+    float gl_m = 16.0f * scale;
     const char *gh_l = "https://github.com/arosdami/ChessGL";
     float gl_w = rajz_szoveg_szelesseg(gh_l, gl_m);
     rajz_szoveg(gh_l, (szel - gl_w) / 2.0f, y, gl_m,
@@ -244,13 +273,15 @@ static void nevjegy_rajzol(void) {
 
     y += link_sav;
 
-    sziv_rajzol(szel / 2.0f, y + 36.0f * scale * 0.6f,
-                36.0f * scale, 0.95f, 0.20f, 0.30f);
+    // ---- SZIV ----
+    sziv_rajzol(szel / 2.0f, y + 30.0f * scale * 0.6f,
+                32.0f * scale, 0.95f, 0.20f, 0.30f);
 
+    // ---- SUGO ----
     const char *sugo = "Nyomj ESC-et a visszalepeshez!";
-    float sm = 16.0f * scale;
+    float sm = 15.0f * scale;
     float sw = rajz_szoveg_szelesseg(sugo, sm);
-    rajz_szoveg(sugo, (szel - sw) / 2.0f, mag - 25.0f,
+    rajz_szoveg(sugo, (szel - sw) / 2.0f, mag - 22.0f,
                 sm, 0.55f, 0.58f, 0.65f);
 }
 
@@ -545,9 +576,14 @@ int main(void) {
 
     menu_inicializalas();
 
-    // Babuk texturajanak betoltese
+    // Texturak betoltese
+    printf("--- Texturak betoltese ---\n");
     unsigned int babuk_tex = rajz_textura_betolt("resources/babuk.png");
     babu_textura_beallit(babuk_tex);
+
+    creator_textura = rajz_textura_betolt("resources/creator.png");
+    printf("creator_textura = %u\n", creator_textura);
+    printf("--------------------------\n");
 
     JatekAllapot jatek;
     tabla_inicializalas(&jatek);
