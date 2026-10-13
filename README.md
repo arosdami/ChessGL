@@ -1,6 +1,4 @@
-﻿![ChessGL Logo](screenshots/logo.png)
-
-
+﻿
 <div align="center">
 
 ![ChessGL Logo](screenshots/logo.png)
