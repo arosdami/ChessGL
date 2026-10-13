@@ -1,11 +1,22 @@
 
-<div align="center">
+# ChessGL
 
-![ChessGL logo](screenshots/logo.png)
+<div align="center">
+  <img src="screenshots/logo.png" alt="ChessGL logo" width="260" />
+</div>
+
+<div align="center">
+  <a href="https://github.com/arosdami/ChessGL"><img src="https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github" alt="GitHub repo" /></a>
+  <a href="https://github.com/arosdami/ChessGL/releases"><img src="https://img.shields.io/badge/Release-Download-2ea44f?style=for-the-badge" alt="Download release" /></a>
+  <a href="#forditas-es-futtatas"><img src="https://img.shields.io/badge/Build-Run-0A66C2?style=for-the-badge" alt="Build and run" /></a>
+  <a href="#jatekmenet"><img src="https://img.shields.io/badge/How-to-Play-FFB000?style=for-the-badge" alt="How to play" /></a>
+</div>
+
+<p align="center">
+  <strong>Modern OpenGL sakkjáték C nyelven</strong>
+</p>
 
 Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
-
-</div>
 
 ## Jellemzők
 
