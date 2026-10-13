@@ -1,10 +1,9 @@
-# ChessGL
-
-Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
 
 <div align="center">
 
 ![ChessGL logo](screenshots/logo.png)
+
+Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
 
 </div>
 
@@ -51,13 +50,6 @@ A projekt Windows rendszeren készül és fut, MinGW-w64 GCC-vel. A repo már ta
 - `resources/` – ikonok, textúrák, képek
 - `screenshots/` – képernyőképek a dokumentációhoz
 
-## Gyorsindítás
-
-A legkönnyebb mód a projekt futtatására a meglévő build szkriptek használata a `build_files/` mappából:
-
-```bat
-build_files\build_and_run.bat
-```
 
 Ez buildeli a programot, és elindítja a `ChessGL.exe` fájlt.
 
@@ -136,10 +128,6 @@ ChessGL/
 │   ├── glad.c
 │   ├── stb_impl.c
 │   └── ...
-├── build_files/
-│   ├── build.bat
-│   ├── build_and_run.bat
-│   └── run.bat
 └── .gitignore
 ```
 
