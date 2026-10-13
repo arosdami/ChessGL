@@ -1,6 +1,5 @@
 ﻿![ChessGL Logo](screenshots/logo.png)
 
-# ChessGL – OpenGL Sakkjáték
 
 Egy modern, C nyelven íródott sakkjáték OpenGL 3.3 Core Profile grafikával.
 A projekt egy egyetemi bemutató keretein belül készült, saját shaderekkel,
