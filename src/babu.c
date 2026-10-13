@@ -1,9 +1,12 @@
 #include "babu.h"
 #include "rajz.h"
 
-// Wikipedia Cburnett spritesheet (2 sor x 6 oszlop)
-// Felso sor (vilagos): gyalog, bastya, huszar, futo, kiralyno, kiraly
-// Also sor (sotet):    ugyanaz
+// A resources/babuk.png egy 6 cellas sorokat tartalmazo
+// sprite sheet. Minden sorban 6 babu van, balrol jobbra:
+//   0: kiralyno, 1: kiraly, 2: futo, 3: huszar, 4: bastya, 5: gyalog
+//
+// Felso sor (0): feher babuk
+// Also sor (1):  fekete babuk
 static unsigned int babuk_textura = 0;
 
 void babu_textura_beallit(unsigned int tex) {
@@ -11,15 +14,16 @@ void babu_textura_beallit(unsigned int tex) {
 }
 
 static void babu_cella(Babu b, int *sor, int *oszlop) {
+    // FELSO sor = FEHER (vilagos), ALSO sor = FEKETE (sotet)
     *sor = (b.szin == FEHER) ? 0 : 1;
 
     switch (b.tipus) {
-        case GYALOG:   *oszlop = 0; break;
-        case BASTYA:   *oszlop = 1; break;
-        case HUSZAR:   *oszlop = 2; break;
-        case FUTO:     *oszlop = 3; break;
-        case KIRALYNO: *oszlop = 4; break;
-        case KIRALY:   *oszlop = 5; break;
+        case KIRALYNO: *oszlop = 0; break;
+        case KIRALY:   *oszlop = 1; break;
+        case FUTO:     *oszlop = 2; break;
+        case HUSZAR:   *oszlop = 3; break;
+        case BASTYA:   *oszlop = 4; break;
+        case GYALOG:   *oszlop = 5; break;
         default:       *oszlop = -1; break;
     }
 }
@@ -37,6 +41,7 @@ void babu_rajzol(Babu b, float x, float y, float mezo) {
         return;
     }
 
+    // 6 oszlop x 2 sor
     float cella_w = 1.0f / 6.0f;
     float cella_h = 1.0f / 2.0f;
 
