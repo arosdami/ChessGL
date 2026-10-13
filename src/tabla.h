@@ -3,7 +3,7 @@
 
 #define MERET 8
 
-// B?but?pusok
+// Babutípusok
 typedef enum {
     URES = 0,
     GYALOG,
@@ -14,20 +14,20 @@ typedef enum {
     KIRALY
 } BabuTipus;
 
-// Sz?nek
+// Színek
 typedef enum {
     NINCS_SZIN = 0,
     FEHER,
     FEKETE
 } Szin;
 
-// Egy b?bu a t?bl?n
+// Egy bábu a táblán
 typedef struct {
     BabuTipus tipus;
     Szin      szin;
 } Babu;
 
-// A j?t?k teljes ?llapota
+// A játék teljes állapota
 typedef struct {
     Babu  tabla[MERET][MERET];
     Szin  kovetkezo;
@@ -37,7 +37,7 @@ typedef struct {
     int   jatek_vege;              // 0=folyamatban, 1=matt, 2=patt
     char  utolso_lepes[32];
 
-    // S?ncol?shoz: melyik kir?ly/b?stya mozdult m?r el
+    // Sáncoláshoz: melyik király/bástya mozdult már el
     int   feher_kiraly_mozdult;
     int   fekete_kiraly_mozdult;
     int   feher_bastya_a_mozdult;
@@ -45,13 +45,13 @@ typedef struct {
     int   fekete_bastya_a_mozdult;
     int   fekete_bastya_h_mozdult;
 
-    // En passant: az utols? l?p?s dupla gyalogl?p?s volt-e,
-    // ?s melyik oszlopba ?rt
+    // En passant: az utolsó lépés dupla gyaloglépés volt-e,
+    // és melyik oszlopba ért
     int   en_passant_sor;    // -1, ha nincs
     int   en_passant_oszlop;
 } JatekAllapot;
 
-// Alap f?ggv?nyek
+// Alapfüggvények
 void tabla_inicializalas(JatekAllapot *j);
 int  babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co);
 int  lepes_vegrehajtas(JatekAllapot *j, int sr, int so, int cr, int co);

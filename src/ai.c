@@ -2,11 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int ai_melyseg = 2;
+#define AI_ALAP_MELYSEG 2
+#define AI_MIN_MELYSEG  1
+#define AI_MAX_MELYSEG  3
+#define AI_MIN_PONT      -100000
+#define AI_MAX_PONT       100000
+#define AI_MATT_PONT      90000
+
+static int ai_melyseg = AI_ALAP_MELYSEG;
 
 void ai_nehezseg_beallit(int melyseg) {
-    if (melyseg < 1) melyseg = 1;
-    if (melyseg > 3) melyseg = 3;
+    if (melyseg < AI_MIN_MELYSEG) melyseg = AI_MIN_MELYSEG;
+    if (melyseg > AI_MAX_MELYSEG) melyseg = AI_MAX_MELYSEG;
     ai_melyseg = melyseg;
 }
 
@@ -71,7 +78,7 @@ static int minimax(JatekAllapot *j, int melyseg, int alfa, int beta, Szin ai_szi
     int maximalizal = (lepo == ai_szin);
 
     // Összes legális lépés
-    int legjobb = maximalizal ? -100000 : 100000;
+    int legjobb = maximalizal ? AI_MIN_PONT : AI_MAX_PONT;
 
     for (int sr = 0; sr < MERET; sr++) {
         for (int so = 0; so < MERET; so++) {
@@ -118,8 +125,8 @@ static int minimax(JatekAllapot *j, int melyseg, int alfa, int beta, Szin ai_szi
     }
 
     // Ha nincs legális lépés (matt vagy patt)
-    if (legjobb == -100000) return -90000;   // matt miattunk
-    if (legjobb ==  100000) return  90000;   // matt ellenünk
+    if (legjobb == AI_MIN_PONT) return -AI_MATT_PONT;
+    if (legjobb == AI_MAX_PONT) return AI_MATT_PONT;
     return legjobb;
 }
 
@@ -127,7 +134,7 @@ int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
                       int *sor_ki, int *oszlop_ki,
                       int *sor_be, int *oszlop_be) {
 
-    int legjobb_ertek = -1000000;
+    int legjobb_ertek = -AI_MAX_PONT * 10;
     int talalt = 0;
 
     Szin mentett = j->kovetkezo;
@@ -146,7 +153,8 @@ int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
                     Babu le = lepes_szimulal(j, sr, so, cr, co);
                     j->kovetkezo = (szin == FEHER) ? FEKETE : FEHER;
 
-                    int ertek = minimax(j, ai_melyseg, -1000000, 1000000, szin);
+                    int ertek = minimax(j, ai_melyseg,
+                                        -AI_MAX_PONT * 10, AI_MAX_PONT * 10, szin);
 
                     // Visszaállítás
                     j->kovetkezo = szin;
