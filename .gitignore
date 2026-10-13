@@ -21,3 +21,6 @@ build_files/
 # Rendszer
 Thumbs.db
 Desktop.ini
+
+# Batch scriptek (nem kellenek a repoba)
+*.bat
