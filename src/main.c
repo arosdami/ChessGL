@@ -10,9 +10,8 @@
 #include "ai.h"
 #include "babu.h"
 
-// ============================================================
-//                    KONSTANSOK ÉS MAKRÓK
-// ============================================================
+// KONSTANSOK ÉS MAKRÓK
+
 // --- UI Színek ---
 #define SZIN_HATT          0.07f, 0.08f, 0.11f
 #define SZIN_CIM           0.95f, 0.85f, 0.55f
@@ -57,9 +56,8 @@
 #define AI_MIN_MELYSEG     1
 #define AI_MAX_MELYSEG     3
 
-// ============================================================
-//                    GLOBALIS VALTOZOK
-// ============================================================
+// GLOBALIS VALTOZOK
+
 static unsigned int creator_textura = 0;
 
 typedef struct {
@@ -82,9 +80,8 @@ static int easter_egg_aktivalva = 0;
 static int van_folytathato_jatek = 0;
 static int uj_jatek_keresve = 0;
 
-// ============================================================
-//                    SEGEDFUGGVENYEK (UI & EGER)
-// ============================================================
+// SEGEDFUGGVENYEK (UI & EGER)
+
 static int eger_benne(float x, float y, float w, float h) {
     double mx = rajz_eger_x();
     double my = rajz_eger_y();
@@ -132,9 +129,8 @@ static int gomb_rajzol_ui(float x, float y, float w, float h, const char *felira
     return folotte;
 }
 
-// ============================================================
-//                       FOMENU
-// ============================================================
+// FOMENU
+
 static void fomenu_rajzol(void) {
     int mag = rajz_ablak_mag();
     int szel = rajz_ablak_szel();
@@ -178,9 +174,8 @@ static void fomenu_rajzol(void) {
     szoveg_kozepre("F11 = teljes kepernyo     ESC = vissza", mag - 25.0f, SUGO_BETU_MERET, SZIN_ALCIM);
 }
 
-// ============================================================
-//                    AI NEHEZSEG MENU
-// ============================================================
+// AI NEHEZSEG MENU
+
 static void ai_nehezseg_rajzol(void) {
     rajz_torol(SZIN_HATT);
     const char *feliratok[] = {"Konnyu", "Normal", "Eros"};
@@ -218,9 +213,8 @@ static int ai_nehezseg_kattintas(void) {
     return 0;
 }
 
-// ============================================================
-//                       NEVJEGY
-// ============================================================
+// NEVJEGY
+
 static void nevjegy_rajzol(void) {
     int szel = rajz_ablak_szel();
     int mag  = rajz_ablak_mag();
@@ -271,9 +265,8 @@ static void nevjegy_rajzol(void) {
     szoveg_kozepre("Nyomj ESC-et a visszalepeshez!", mag - 25.0f, cimke_m, SZIN_ALCIM);
 }
 
-// ============================================================
-//                       KILEPES
-// ============================================================
+// KILEPES
+
 static void kilepes_rajzol(void) {
     rajz_torol(SZIN_HATT);
     int mag = rajz_ablak_mag();
@@ -282,9 +275,8 @@ static void kilepes_rajzol(void) {
     szoveg_kozepre("I = igen        N = nem", mag / 2.0f + 20.0f, ALCIM_MERET, SZIN_ALCIM);
 }
 
-// ============================================================
-//                  PANEL ELRENDEZES ES JATEK
-// ============================================================
+// PANEL ELRENDEZES ES JATEK
+
 typedef struct { float x, y, w, h; } Teglalap;
 
 static void panelek_szamol(Teglalap *bal, Teglalap *jf, Teglalap *ja) {
@@ -421,9 +413,8 @@ static void jatek_rajzol(JatekAllapot *j, int kijelolt[MERET][MERET]) {
     szoveg_kozepre("R  UJ JATEK        ESC  FOMENU        F11  TELJES KEPE", rajz_ablak_mag() - 34.0f, SUGO_BETU_MERET, SZIN_ALCIM);
 }
 
-// ============================================================
-//                  KATTINTAS ÉS CALLBACK
-// ============================================================
+// KATTINTAS ÉS CALLBACK
+
 static void fomenu_kattintas(void) {
     if (!eger_kattintott()) return;
     double mx = rajz_eger_x();
@@ -514,9 +505,8 @@ static void ai_lep(JatekAllapot *j) {
     if (!van_legalis_lepes(j, j->kovetkezo)) j->jatek_vege = 1;
 }
 
-// ============================================================
-//                       MAIN
-// ============================================================
+// MAIN
+
 int main(void) {
     if (!rajz_inicializalas()) {
         printf("Hiba: nem sikerult inicializalni az OpenGL ablakot.\n");
