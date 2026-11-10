@@ -1,4 +1,3 @@
-
 <div align="center">
   <img src="screenshots/logo.png" alt="ChessGL logo" width="800" />
 </div>
@@ -10,56 +9,58 @@
   <a href="#gameplay"><img src="https://img.shields.io/badge/How_to_Play-FFB000?style=for-the-badge" alt="How to play" /></a>
 </div>
 
-<p align="center">
-Egy modern, C nyelven íródott sakkjáték, amely OpenGL 3.3 Core Profile grafikai motorral rendereli a sakktáblát, a menüt és a figurákat. A projekt egy egyetemi bemutató és játékfejlesztési feladat eredménye, saját shader-ekkel, saját sakk-logikával és gép elleni játékmóddal.
+<div align="center" style="margin-top: 10px;">
+  <a href="https://hub.xerj.org/contributors/arosdami"><img src="https://hub.xerj.org/contributors/arosdami/badge.svg" alt="XERJ Corpus Hub contributor" /></a>
+</div>
 
+<p align="center">
+A modern chess game written in C that renders the chessboard, UI menus, and pieces using an OpenGL 3.3 Core Profile graphics pipeline. Developed as a university coursework project in 3D modeling and game development, featuring custom GLSL shaders, proprietary chess rule evaluation logic, and single-player gameplay against an AI engine.
 </p>
 
-## Jellemzők
+## Features
 
-- Kétjátékos mód ugyanazon a gépen, felváltva lépéssel
-- AI ellen játszható mód (minimax + alpha-beta vágás)
-- Teljes sakklogika:
-  - normál lépések minden bábúhoz
-  - ütésvizsgálat
-  - gyalogátváltozás
-  - sakk, matt és patt felismerés
-- Sötét, modern felület és főmenü
-- Textúrázott sakkfigurák sprite sheet-ből
-- Kijelölt bábu és lehetséges lépések vizuális jelölése
-- Teljes képernyős mód (`F11`)
-- Saját EXE ikon és ablakikon
+- Local two-player mode on the same machine with alternating turns
+- Single-player AI mode (powered by Minimax with alpha-beta pruning)
+- Complete chess rules engine:
+  - Standard movement validation for all piece types
+  - Capture detection
+  - Pawn promotion
+  - Check, checkmate, and stalemate detection
+- Modern dark-themed user interface and interactive main menu
+- Textured 2D chess pieces mapped from a sprite sheet
+- Visual highlights for selected pieces and valid target squares
+- Fullscreen toggle support (`F11`)
+- Custom application icon and executable resource integration
 
-![Játéktér](screenshots/sakk.png)
+![Gameplay Screenshot](screenshots/sakk.png)
 
-## Technológiák
+## Technologies
 
-- Nyelv: C (C11)
-- Grafika: OpenGL 3.3 Core Profile
-- Ablakkezelés: GLFW 3.x
-- OpenGL függvénybetöltés: GLAD
-- Képbetöltés: stb_image.h
-- Fordító: GCC / MinGW-w64
+- **Language:** C (C11 standard)
+- **Graphics API:** OpenGL 3.3 Core Profile
+- **Window Management & Input:** GLFW 3.x
+- **OpenGL Function Loader:** GLAD
+- **Image Decoding:** `stb_image.h`
+- **Compiler Suite:** GCC / MinGW-w64
 
-## Szükséges környezet
+## Environment & Prerequisites
 
-A projekt Windows rendszeren készül és fut, MinGW-w64 GCC-vel. A repo már tartalmazza a szükséges GLFW és GLAD fájlokat is.
+This project is built and optimized for Windows using MinGW-w64 GCC. The repository includes pre-packaged GLFW static libraries and GLAD header/source dependencies.
 
-### Könyvtárak és erőforrások
+### Directories and Assets
 
-- `lib/` – GLFW statikus könyvtárak
-- `include/` – GLAD és stb_image fejlécfájlok
-- `src/` – a játék forráskódja
-- `shaders/` – OpenGL vertex/fragment shader fájlok
-- `resources/` – ikonok, textúrák, képek
-- `screenshots/` – képernyőképek a dokumentációhoz
+- `lib/` – GLFW static library binaries
+- `include/` – GLAD and `stb_image` header files
+- `src/` – Game engine and logic source code
+- `shaders/` – GLSL vertex and fragment shader files
+- `resources/` – Windows icons, sprites, textures, and asset files
+- `screenshots/` – Documentation images
 
+---
 
-Ez buildeli a programot, és elindítja a `ChessGL.exe` fájlt.
+## Manual Compilation
 
-## Manuális fordítás
-
-Nyisd meg a PowerShellt a projekt gyökerében, majd add ki:
+Open PowerShell or Command Prompt in the root directory of the project, then run:
 
 ```bat
 windres resources\ikon.rc -O coff -o resources\ikon.o
@@ -71,58 +72,64 @@ gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
     -Llib -lglfw3 -lopengl32 -lgdi32 -lm
 ```
 
-Ez létrehozza a fordított futtatható fájlt:
+Execute the compiled binary:
 
 ```bat
 .\ChessGL.exe
 ```
 
-Ha csak ikon nélkül akarod fordítani, a `resources\ikon.o` részt elhagyhatod.
+*Note: If you wish to build without embedding the Windows executable icon, simply omit `resources\ikon.o` from the build command.*
 
-## Irányítás
+---
 
-| Gomb | Funkció |
-|------|---------|
-| Bal egérgomb | Bábu kiválasztása, majd célmező kijelölése / lépés végrehajtása |
-| ESC | Vissza a főmenübe vagy kilépés |
-| R | Új játék indítása az aktuális módban |
-| F11 | Teljes képernyő ki/be |
+## Controls
 
-## Játékmenet
+| Key / Input | Action |
+|-------------|--------|
+| **Left Mouse Button** | Select a piece, then select target square to execute move |
+| **ESC** | Return to main menu or pause/resume |
+| **R** | Restart game in current mode |
+| **F11** | Toggle Fullscreen |
 
-1. Indítás után a főmenüben válaszd az `Új játék` vagy az `AiChess` opciót.
-2. Az AI módnál kiválasztható a nehézségi szint: könnyű, normál vagy erős.
-3. Kattints a saját bábudra a sakktáblán.
-4. A lehetséges lépések zölddel lesznek jelölve.
-5. Kattints a célmezőre a lépés végrehajtásához.
-6. `ESC` segítségével visszaléphetsz a főmenübe, és a `Folytatás` gombbal visszatérhetsz a játékhoz.
-7. A játék addig tart, amíg valamelyik játékos mattot kap, vagy a pozíció pattállásba kerül.
+---
 
-## Projekt struktúra
+## Gameplay
+
+1. Launch the executable and select either **New Game** (PvP) or **AiChess** (PvE) from the main menu.
+2. When playing against AI, select the desired difficulty: Easy, Normal, or Hard.
+3. Click on your piece on the board to select it.
+4. Valid destination squares are highlighted in green.
+5. Click on an authorized target square to complete the turn.
+6. Press `ESC` at any time to return to the main menu, and select **Continue** to resume play.
+7. The match concludes when checkmate or stalemate is reached.
+
+---
+
+## Project Structure
 
 ```text
 ChessGL/
-├── ChessGL.exe             # Fordított futtatható program
-├── glfw3.dll               # GLFW DLL
-├── README.md               # Projekt leírás
-├── LICENSE                 # Licenc
-├── lib/                    # GLFW statikus könyvtárak
-├── include/                # GLAD és stb_image fejlécfájlok
-├── shaders/                # OpenGL shader fájlok
+├── ChessGL.exe             # Compiled executable
+├── glfw3.dll               # GLFW dynamic link library
+├── README.md               # Project documentation
+├── LICENSE                 # License file
+├── lib/                    # GLFW static libraries
+├── include/                # GLAD and stb_image header files
+├── shaders/                # OpenGL shader files
 │   ├── vertex.glsl
 │   └── fragment.glsl
-├── resources/              # Ikonok, textúrák és képek
+├── resources/              # Icons, textures, and assets
 │   ├── sakk.ico
 │   ├── icon.png
 │   ├── babuk.png
 │   ├── creator.png
 │   ├── ikon.rc
-│   └── ikon.o              # Opcionális fordítási objektum
-├── screenshots/            # Képernyőképek a dokumentációhoz
+│   └── ikon.o              # Compiled resource object
+├── screenshots/            # Visual documentation
 │   ├── logo.png
 │   ├── mainmenu.png
 │   └── sakk.png
-├── src/                    # Forrásfájlok
+├── src/                    # Source files
 │   ├── main.c
 │   ├── tabla.c / tabla.h
 │   ├── rajz.c / rajz.h
@@ -135,55 +142,60 @@ ChessGL/
 └── .gitignore
 ```
 
-## Fejlesztési megjegyzések
+---
 
-- A program nem használ külső 3D modellt, a sakkfigurák egyetlen sprite sheet textúrából töltődnek be.
-- A szöveg renderelése saját bitmap fonttal történik.
-- A shader fájlok külön mappában vannak (`shaders/`).
-- Az AI minimax algoritmust használ alpha-beta vágással.
-- A textúrák betöltéséhez a `stb_image.h` header-only könyvtár szolgál.
+## Implementation Details
 
-## Ismert korlátozások
+- The rendering pipeline avoids heavy 3D mesh loaders by utilizing a single optimized 2D sprite sheet for all piece variations.
+- Custom bitmap font system for in-engine UI rendering without external FreeType bloat.
+- Isolated GLSL shaders stored externally under `shaders/`.
+- Lightweight Minimax implementation with alpha-beta pruning for deterministic game-tree traversal.
+- Single-header `stb_image.h` integration for zero-dependency image loading.
 
-- Nincs sáncolás és en passant támogatás
-- Az AI nem mindig veszi észre a közvetlen matt- vagy veszélyhelyzetet, csak az anyagi előnyt számolja
+## Known Limitations
 
-## Készítette
+- Castling and *en passant* are currently unsupported.
+- The AI prioritizes strict material advantage and piece valuation over deep combinatorial checkmate traps.
 
-- Név: Aros Damján
-- Tantárgy: 3D modellezés és játékfejlesztés
-- Oktató: Dr. Mileff Péter
+---
 
-## GitHub
+## Author & Academic Information
 
-https://github.com/arosdami/ChessGL
+- **Author:** Aros Damján [![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/arosdami/badge.svg)](https://hub.xerj.org/contributors/arosdami)
+- **Course:** 3D Modeling and Game Development
+- **Instructor:** Dr. Péter Mileff
 
-## Licenc
+## Repository
 
-Ez a projekt a [MIT License](LICENSE) feltételei alapján kerül kiadásra.
+- GitHub: [https://github.com/arosdami/ChessGL](https://github.com/arosdami/ChessGL)
+- XERJ Reference Corpus: [hub.xerj.org/contributors/arosdami](https://hub.xerj.org/contributors/arosdami)
 
-A licenc lehetővé teszi, hogy a szoftvert szabadon használni, másolni, módosítani és terjeszteni lehessen, mindaddig, amíg a szerzői jogi megjegyzés és a licenc szövege megmarad a másolatokban és a módosított változatokban is.
+---
 
-A szoftver „adott állapotában” kerül biztosításra, mindenféle garancia nélkül, beleértve, de nem kizárólag a forgalomképességre, egy adott célra való alkalmasságra és nem sértő jellegre vonatkozó garanciákat.
+## License
 
-A teljes szöveg elérhető a [LICENSE](LICENSE) fájlban.
+This project is licensed under the terms of the [MIT License](LICENSE).
 
-> Copyright (c) 2026 Aros Damján
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE.
+```text
+MIT License
+
+Copyright (c) 2026 Aros Damján
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
