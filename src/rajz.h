@@ -5,6 +5,31 @@
 
 #define ABLAK_SZEL 1000
 #define ABLAK_MAG  760
+#define RAJZ_MIN_MERET 1
+#define RAJZ_EGY_DB 1
+#define RAJZ_KETTO 2.0f
+#define RAJZ_SHADER_LOG_MERET 512
+#define RAJZ_RGBA_CSATORNAK 4
+#define RAJZ_VERTEX_ADAT 7
+#define RAJZ_MAX_CSUCSSZAM 8192
+#define RAJZ_MATRIX_ELEMEK 16
+#define RAJZ_POZICIO_ATTR 0
+#define RAJZ_TEXTURA_ATTR 1
+#define RAJZ_SZIN_ATTR 2
+#define RAJZ_POZICIO_ADAT 2
+#define RAJZ_TEXTURA_ADAT 2
+#define RAJZ_SZIN_ADAT 3
+#define RAJZ_TEXTURA_OFFSET 2
+#define RAJZ_SZIN_OFFSET 4
+#define RAJZ_NEGYZET_CSUCSSZAM 6
+#define RAJZ_HAROMSZOG_CSUCSSZAM 3
+#define RAJZ_KOR_SZELETEK 32
+#define RAJZ_TELJES_KOR 6.2831853f
+#define BETU_OSZLOPOK 5
+#define BETU_SOROK 7
+#define BETU_ASCII_KEZDO 32
+#define BETU_ASCII_VEGE 126
+#define BETU_KOZ 6
 
 int  rajz_inicializalas(void);
 void rajz_bezaras(void);
@@ -37,15 +62,15 @@ int    rajz_teljes_kepernyos(void);
 int    rajz_ablak_szel(void);
 int    rajz_ablak_mag(void);
 
-// Texturazott negyszog
+/* Texturazott negyszog. */
 void rajz_textura_negyszog(unsigned int textura, float x, float y,
                            float w, float h,
                            float u0, float v0, float u1, float v1);
 
-// Textura kor alakban
+/* Textura kor alakban. */
 void rajz_textura_kor(unsigned int textura, float cx, float cy, float sugar);
 
-// Textura betoltese fajlbol
+/* Textura betoltese fajlbol. */
 unsigned int rajz_textura_betolt(const char *ut);
 
 #endif

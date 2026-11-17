@@ -3,9 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// ============================================================
-//                    SEGEDFUGGVENYEK
-// ============================================================
+#define TABLA_FEHER_IRANY -1
+#define TABLA_FEKETE_IRANY 1
+#define TABLA_DUPLA_LEPES 2
+#define TABLA_KIRALY_LEPES 1
+#define TABLA_ROVID_SANC_CEL 6
+#define TABLA_HOSSZU_SANC_CEL 2
+#define TABLA_BASTYA_H_OSZLOP 7
+#define TABLA_BASTYA_A_OSZLOP 0
+#define TABLA_ROVID_SANC_KOZTES 5
+#define TABLA_HOSSZU_SANC_KOZTES_1 1
+#define TABLA_HOSSZU_SANC_KOZTES_2 2
+#define TABLA_HOSSZU_SANC_KOZTES_3 3
+#define TABLA_BASTYA_H_CEL 5
+#define TABLA_BASTYA_A_CEL 3
+#define TABLA_SAKK_SOR_ALAP '8'
+
+/* Sakklogikai segedfuggvenyek. */
 static Szin ellenfel(Szin s) {
     return (s == FEHER) ? FEKETE : FEHER;
 }
@@ -28,9 +42,7 @@ static int ellenfel_babu_e(JatekAllapot *j, int sor, int oszlop, Szin szin) {
            j->tabla[sor][oszlop].szin != szin;
 }
 
-// ============================================================
-//                    TABLA INICIALIZALAS
-// ============================================================
+/* A kezdoallapot beallitasa. */
 void tabla_inicializalas(JatekAllapot *j) {
     for (int s = 0; s < MERET; s++)
         for (int o = 0; o < MERET; o++)
@@ -41,17 +53,17 @@ void tabla_inicializalas(JatekAllapot *j) {
     };
 
     for (int o = 0; o < MERET; o++) {
-        j->tabla[0][o] = (Babu){hatso[o], FEKETE};
-        j->tabla[1][o] = (Babu){GYALOG,  FEKETE};
-        j->tabla[6][o] = (Babu){GYALOG,  FEHER};
-        j->tabla[7][o] = (Babu){hatso[o], FEHER};
+        j->tabla[TABLA_SOR_FEKETE_FIGURA][o] = (Babu){hatso[o], FEKETE};
+        j->tabla[TABLA_SOR_FEKETE_GYALOG][o] = (Babu){GYALOG, FEKETE};
+        j->tabla[TABLA_SOR_FEHER_GYALOG][o] = (Babu){GYALOG, FEHER};
+        j->tabla[TABLA_SOR_FEHER_FIGURA][o] = (Babu){hatso[o], FEHER};
     }
 
     j->kovetkezo = FEHER;
-    j->kivalasztott_sor   = -1;
-    j->kivalasztott_oszlop= -1;
+    j->kivalasztott_sor   = TABLA_NINCS_MEZO;
+    j->kivalasztott_oszlop= TABLA_NINCS_MEZO;
     j->van_kivalasztva    = 0;
-    j->jatek_vege         = 0;
+    j->jatek_vege         = JATEK_FOLYAMATBAN;
     strcpy(j->utolso_lepes, "-");
 
     j->feher_kiraly_mozdult    = 0;
@@ -61,46 +73,43 @@ void tabla_inicializalas(JatekAllapot *j) {
     j->fekete_bastya_a_mozdult = 0;
     j->fekete_bastya_h_mozdult = 0;
 
-    j->en_passant_sor    = -1;
-    j->en_passant_oszlop = -1;
+    j->en_passant_sor    = TABLA_NINCS_MEZO;
+    j->en_passant_oszlop = TABLA_NINCS_MEZO;
 }
 
-// ============================================================
-//                    GYALOG
-// ============================================================
+/* Gyaloglepesek. */
 static int gyalog_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     Babu b = j->tabla[sr][so];
-    int irany     = (b.szin == FEHER) ? -1 : 1;
-    int kezdo_sor = (b.szin == FEHER) ?  6 : 1;
+    int irany     = (b.szin == FEHER) ? TABLA_FEHER_IRANY : TABLA_FEKETE_IRANY;
+    int kezdo_sor = (b.szin == FEHER) ? TABLA_SOR_FEHER_GYALOG
+                                      : TABLA_SOR_FEKETE_GYALOG;
     int ds        = cr - sr;
     int dob       = co - so;
 
-    // Egyenes előre
+    /* Egyenes lepes. */
     if (dob == 0) {
         if (ds == irany && ures_mezot_ellenoriz(j, cr, co)) return 1;
-        if (sr == kezdo_sor && ds == 2 * irany &&
+        if (sr == kezdo_sor && ds == TABLA_DUPLA_LEPES * irany &&
             ures_mezot_ellenoriz(j, sr + irany, so) &&
             ures_mezot_ellenoriz(j, cr, co)) return 1;
         return 0;
     }
 
-    // Átlós ütés
-    if (abs(dob) == 1 && ds == irany) {
-        // Normál ütés
+    /* Atlos utes. */
+    if (abs(dob) == TABLA_KIRALY_LEPES && ds == irany) {
+        /* Normal utes. */
         if (ellenfel_babu_e(j, cr, co, b.szin)) return 1;
 
-        // En passant
+        /* En passant. */
+        /* A celmezo ures, ezert csak az utolso dupla gyaloglepes igazolhatja. */
         if (j->en_passant_sor == cr && j->en_passant_oszlop == co) {
-            // Az en passant mező mögött kell lennie az ellenfél gyalogjának
             return 1;
         }
     }
     return 0;
 }
 
-// ============================================================
-//                    BASTYA
-// ============================================================
+/* Bastyalepesek. */
 static int bastya_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     if (sr != cr && so != co) return 0;
     int ds  = (cr > sr) - (cr < sr);
@@ -113,9 +122,7 @@ static int bastya_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     return 1;
 }
 
-// ============================================================
-//                    FUTÓ
-// ============================================================
+/* Futolepesek. */
 static int futo_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     if (abs(cr - sr) != abs(co - so)) return 0;
     int ds  = (cr > sr) - (cr < sr);
@@ -128,70 +135,57 @@ static int futo_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     return 1;
 }
 
-// ============================================================
-//                    HUSZÁR (L-ALAK)
-// ============================================================
+/* Huszarlepesek. */
 static int huszar_szabalyos(int sr, int so, int cr, int co) {
     int ds  = abs(cr - sr);
     int dob = abs(co - so);
-    // L-alak: 2+1 vagy 1+2
-    return (ds == 2 && dob == 1) || (ds == 1 && dob == 2);
+    return (ds == TABLA_DUPLA_LEPES && dob == TABLA_KIRALY_LEPES) ||
+           (ds == TABLA_KIRALY_LEPES && dob == TABLA_DUPLA_LEPES);
 }
 
-// ============================================================
-//                    KIRÁLYNŐ
-// ============================================================
+/* Kiralynoi lepesek. */
 static int kiralyno_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     return bastya_szabalyos(j, sr, so, cr, co) ||
            futo_szabalyos(j, sr, so, cr, co);
 }
 
-// ============================================================
-//                    KIRÁLY
-// ============================================================
+/* Kiralylepesek es sancolas. */
 static int kiraly_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     Babu b = j->tabla[sr][so];
 
-    // Egyszerű királylépés: egy mező bármely irányba
-    if (abs(cr - sr) <= 1 && abs(co - so) <= 1 &&
+    if (abs(cr - sr) <= TABLA_KIRALY_LEPES &&
+        abs(co - so) <= TABLA_KIRALY_LEPES &&
         !(sr == cr && so == co)) {
-        // Az új mezőn nem lehet saját bábu
         if (sajat_babu_e(j, cr, co, b.szin)) return 0;
         return 1;
     }
 
-    // Sáncolás
-    if (sr == cr && abs(co - so) == 2) {
-        // A király nem mozdult még el
+    if (sr == cr && abs(co - so) == TABLA_DUPLA_LEPES) {
         if (b.szin == FEHER && j->feher_kiraly_mozdult) return 0;
         if (b.szin == FEKETE && j->fekete_kiraly_mozdult) return 0;
 
-        // Rövid sáncolás (király oldal): e->g
-        if (co == 6) {
-            int bastya_oszlop = 7;
+        if (co == TABLA_ROVID_SANC_CEL) {
+            int bastya_oszlop = TABLA_BASTYA_H_OSZLOP;
             int bastya_mozdult = (b.szin == FEHER)
                                  ? j->feher_bastya_h_mozdult
                                  : j->fekete_bastya_h_mozdult;
             if (bastya_mozdult) return 0;
-            // Ellenőrizzük, hogy üresek-e a köztes mezők
-            if (!ures_mezot_ellenoriz(j, sr, 5)) return 0;
-            if (!ures_mezot_ellenoriz(j, sr, 6)) return 0;
-            // Ellenőrizzük, hogy a bástya ott van-e
+            if (!ures_mezot_ellenoriz(j, sr, TABLA_ROVID_SANC_KOZTES)) return 0;
+            if (!ures_mezot_ellenoriz(j, sr, TABLA_ROVID_SANC_CEL)) return 0;
             if (j->tabla[sr][bastya_oszlop].tipus != BASTYA) return 0;
             if (j->tabla[sr][bastya_oszlop].szin != b.szin) return 0;
             return 1;
         }
 
-        // Hosszú sáncolás (királynő oldal): e->c
-        if (co == 2) {
-            int bastya_oszlop = 0;
+        if (co == TABLA_HOSSZU_SANC_CEL) {
+            int bastya_oszlop = TABLA_BASTYA_A_OSZLOP;
             int bastya_mozdult = (b.szin == FEHER)
                                  ? j->feher_bastya_a_mozdult
                                  : j->fekete_bastya_a_mozdult;
             if (bastya_mozdult) return 0;
-            if (!ures_mezot_ellenoriz(j, sr, 1)) return 0;
-            if (!ures_mezot_ellenoriz(j, sr, 2)) return 0;
-            if (!ures_mezot_ellenoriz(j, sr, 3)) return 0;
+            if (!ures_mezot_ellenoriz(j, sr, TABLA_HOSSZU_SANC_KOZTES_1)) return 0;
+            if (!ures_mezot_ellenoriz(j, sr, TABLA_HOSSZU_SANC_KOZTES_2)) return 0;
+            if (!ures_mezot_ellenoriz(j, sr, TABLA_HOSSZU_SANC_KOZTES_3)) return 0;
             if (j->tabla[sr][bastya_oszlop].tipus != BASTYA) return 0;
             if (j->tabla[sr][bastya_oszlop].szin != b.szin) return 0;
             return 1;
@@ -201,11 +195,8 @@ static int kiraly_szabalyos(JatekAllapot *j, int sr, int so, int cr, int co) {
     return 0;
 }
 
-// ============================================================
-//                    SAKK ELLENŐRZÉS
-// ============================================================
-// Visszaadja, hogy az adott mezőt támadja-e az ellenfél
-// (a saját kizárás színét kivéve)
+/* Sakkvizsgalat. */
+/* Megadja, hogy egy mezot tamad-e az adott szin. */
 static int mezot_tamadja(JatekAllapot *j, int cel_sor, int cel_oszlop,
                          Szin tamado, int sajat_kizaras) {
     for (int s = 0; s < MERET; s++) {
@@ -214,8 +205,6 @@ static int mezot_tamadja(JatekAllapot *j, int cel_sor, int cel_oszlop,
             if (b.tipus == URES || b.szin != tamado) continue;
             if (sajat_kizaras && s == cel_sor && o == cel_oszlop) continue;
 
-            // Ideiglenesen átállítjuk a következő színt, hogy a
-            // bábu szabályos lépése ne ellenőrizze a színt
             Szin mentett = j->kovetkezo;
             j->kovetkezo = tamado;
 
@@ -224,9 +213,9 @@ static int mezot_tamadja(JatekAllapot *j, int cel_sor, int cel_oszlop,
 
             switch (b.tipus) {
                 case GYALOG:
-                    // A gyalog csak átlósan üt
                     if (abs(dob) == 1) {
-                        int irany = (b.szin == FEHER) ? -1 : 1;
+                        int irany = (b.szin == FEHER)
+                                  ? TABLA_FEHER_IRANY : TABLA_FEKETE_IRANY;
                         if (ds == irany) tamad = 1;
                     }
                     break;
@@ -245,7 +234,6 @@ static int mezot_tamadja(JatekAllapot *j, int cel_sor, int cel_oszlop,
     return 0;
 }
 
-// Megkeresi a királyt
 static void kiraly_helye(JatekAllapot *j, Szin szin, int *sor, int *oszlop) {
     for (int s = 0; s < MERET; s++)
         for (int o = 0; o < MERET; o++)
@@ -265,9 +253,7 @@ int sakkban_van_e(JatekAllapot *j, Szin szin) {
     return mezot_tamadja(j, ks, ko, ellenfel(szin), 0);
 }
 
-// ============================================================
-//                    ÁLTALÁNOS LÉPÉS-ELLENŐRZÉS
-// ============================================================
+/* Altalanos lepesellenorzes. */
 int babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co) {
     if (!ervenyes(sr, so) || !ervenyes(cr, co)) return 0;
     Babu b = j->tabla[sr][so];
@@ -275,10 +261,8 @@ int babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co) {
     if (b.szin != j->kovetkezo) return 0;
     if (sr == cr && so == co) return 0;
 
-    // Van saját bábu a célmezőn?
     if (sajat_babu_e(j, cr, co, b.szin)) return 0;
 
-    // Bábu-specifikus szabály
     int szabalyos = 0;
     switch (b.tipus) {
         case GYALOG:   szabalyos = gyalog_szabalyos(j, sr, so, cr, co); break;
@@ -291,8 +275,7 @@ int babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co) {
     }
     if (!szabalyos) return 0;
 
-    // A király nem maradhat sakkban
-    // Szimuláljuk a lépést
+    /* A lepes ideiglenes alkalmazasaval ellenorizzuk a sajat kiralyt. */
     Babu le = j->tabla[cr][co];
     Babu mozgo = j->tabla[sr][so];
     j->tabla[cr][co] = mozgo;
@@ -300,7 +283,6 @@ int babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co) {
 
     int sajat_sakk = sakkban_van_e(j, b.szin);
 
-    // Visszaállítás
     j->tabla[sr][so] = mozgo;
     j->tabla[cr][co] = le;
 
@@ -308,70 +290,59 @@ int babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co) {
     return 1;
 }
 
-// ============================================================
-//                    LÉPÉS VÉGREHAJTÁSA
-// ============================================================
+/* Egy lepes vegrehajtasa. */
 int lepes_vegrehajtas(JatekAllapot *j, int sr, int so, int cr, int co) {
     if (!babu_szabalyos_lepes(j, sr, so, cr, co)) return 0;
 
     Babu b = j->tabla[sr][so];
 
-    // En passant: ha a gyalog átlósan üres mezőre lép, akkor az
-    // "en passant" szabály szerint üt
     int en_passant = 0;
-    if (b.tipus == GYALOG && abs(co - so) == 1 &&
+    if (b.tipus == GYALOG && abs(co - so) == TABLA_KIRALY_LEPES &&
         j->tabla[cr][co].tipus == URES) {
-        // Az en passant mező mögött lévő gyalogot levesszük
         j->tabla[sr][co] = (Babu){URES, NINCS_SZIN};
         en_passant = 1;
     }
 
-    // Sáncolás: a király két mezőt lép
     int sancolas = 0;
-    if (b.tipus == KIRALY && abs(co - so) == 2) {
+    if (b.tipus == KIRALY && abs(co - so) == TABLA_DUPLA_LEPES) {
         sancolas = 1;
-        if (co == 6) {
-            // Rövid sáncolás: bástya a sarokból az f oszlopba
-            j->tabla[sr][5] = j->tabla[sr][7];
-            j->tabla[sr][7] = (Babu){URES, NINCS_SZIN};
-        } else if (co == 2) {
-            // Hosszú sáncolás: bástya a sarokból a d oszlopba
-            j->tabla[sr][3] = j->tabla[sr][0];
-            j->tabla[sr][0] = (Babu){URES, NINCS_SZIN};
+        if (co == TABLA_ROVID_SANC_CEL) {
+            j->tabla[sr][TABLA_BASTYA_H_CEL] =
+                j->tabla[sr][TABLA_BASTYA_H_OSZLOP];
+            j->tabla[sr][TABLA_BASTYA_H_OSZLOP] = (Babu){URES, NINCS_SZIN};
+        } else if (co == TABLA_HOSSZU_SANC_CEL) {
+            j->tabla[sr][TABLA_BASTYA_A_CEL] =
+                j->tabla[sr][TABLA_BASTYA_A_OSZLOP];
+            j->tabla[sr][TABLA_BASTYA_A_OSZLOP] = (Babu){URES, NINCS_SZIN};
         }
     }
 
-    // Gyalogátváltozás: mindig királynő
-    if (b.tipus == GYALOG && (cr == 0 || cr == 7)) {
+    if (b.tipus == GYALOG &&
+        (cr == TABLA_SOR_FEKETE_FIGURA || cr == TABLA_SOR_FEHER_FIGURA)) {
         b.tipus = KIRALYNO;
     }
 
-    // Király/bástya mozdult-e
     if (b.tipus == KIRALY) {
         if (b.szin == FEHER) j->feher_kiraly_mozdult = 1;
         else                 j->fekete_kiraly_mozdult = 1;
     }
     if (b.tipus == BASTYA) {
-        if (b.szin == FEHER && so == 0) j->feher_bastya_a_mozdult = 1;
-        if (b.szin == FEHER && so == 7) j->feher_bastya_h_mozdult = 1;
-        if (b.szin == FEKETE && so == 0) j->fekete_bastya_a_mozdult = 1;
-        if (b.szin == FEKETE && so == 7) j->fekete_bastya_h_mozdult = 1;
+        if (b.szin == FEHER && so == TABLA_BASTYA_A_OSZLOP) j->feher_bastya_a_mozdult = 1;
+        if (b.szin == FEHER && so == TABLA_BASTYA_H_OSZLOP) j->feher_bastya_h_mozdult = 1;
+        if (b.szin == FEKETE && so == TABLA_BASTYA_A_OSZLOP) j->fekete_bastya_a_mozdult = 1;
+        if (b.szin == FEKETE && so == TABLA_BASTYA_H_OSZLOP) j->fekete_bastya_h_mozdult = 1;
     }
 
-    // Lépés végrehajtása
     j->tabla[cr][co] = b;
     j->tabla[sr][so] = (Babu){URES, NINCS_SZIN};
 
-    // En passant lehetőség beállítása a következő lépésre
-    j->en_passant_sor    = -1;
-    j->en_passant_oszlop = -1;
-    if (b.tipus == GYALOG && abs(cr - sr) == 2) {
-        // Dupla gyaloglépés: az "átugrott" mezőre en passant lehet
+    j->en_passant_sor    = TABLA_NINCS_MEZO;
+    j->en_passant_oszlop = TABLA_NINCS_MEZO;
+    if (b.tipus == GYALOG && abs(cr - sr) == TABLA_DUPLA_LEPES) {
         j->en_passant_sor    = (sr + cr) / 2;
         j->en_passant_oszlop = so;
     }
 
-    // Lépés szöveges formában
     const char *oszlop_nev = "abcdefgh";
     char szin_jel = (b.szin == FEHER) ? 'F' : 'S';
     char tipus_jel = '?';
@@ -386,34 +357,31 @@ int lepes_vegrehajtas(JatekAllapot *j, int sr, int so, int cr, int co) {
     }
     char specialis = ' ';
     if (en_passant) specialis = 'e';
-    if (sancolas)   specialis = (co == 6) ? 'r' : 'l';
+    if (sancolas)   specialis = (co == TABLA_ROVID_SANC_CEL) ? 'r' : 'l';
 
     snprintf(j->utolso_lepes, sizeof(j->utolso_lepes),
              "%c%c%c%c-%c%c%c",
-             szin_jel, tipus_jel, oszlop_nev[so], '8' - sr,
-             oszlop_nev[co], '8' - cr, specialis);
+             szin_jel, tipus_jel, oszlop_nev[so],
+             TABLA_SAKK_SOR_ALAP - sr, oszlop_nev[co],
+             TABLA_SAKK_SOR_ALAP - cr, specialis);
 
-    // Következő játékos
     j->kovetkezo = ellenfel(j->kovetkezo);
 
-    // Játék vége ellenőrzés
     if (!van_legalis_lepes(j, j->kovetkezo)) {
         if (sakkban_van_e(j, j->kovetkezo)) {
-            j->jatek_vege = 1;  // Matt
+            j->jatek_vege = JATEK_MATT;
         } else {
-            j->jatek_vege = 2;  // Patt
+            j->jatek_vege = JATEK_PATT;
         }
     }
 
     j->van_kivalasztva     = 0;
-    j->kivalasztott_sor    = -1;
-    j->kivalasztott_oszlop = -1;
+    j->kivalasztott_sor    = TABLA_NINCS_MEZO;
+    j->kivalasztott_oszlop = TABLA_NINCS_MEZO;
     return 1;
 }
 
-// ============================================================
-//                    LEPESEK LISTAZASA
-// ============================================================
+/* A valaszthato celmezok listazasa. */
 void lepesek_listazasa(JatekAllapot *j, int sor, int oszlop, int tomb[MERET][MERET]) {
     for (int s = 0; s < MERET; s++)
         for (int o = 0; o < MERET; o++)

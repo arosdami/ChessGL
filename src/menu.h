@@ -9,10 +9,10 @@ typedef enum {
     KEPERNYO_AI_NEHEZSEG
 } Kepernyo;
 
-// Játékmód
+/* A jatek modja. */
 typedef enum {
     MOD_KET_JATEKOS = 0,   // két ember
-    MOD_GEP_ELLEN          // AI ellen
+    MOD_GEP_ELLEN           // AI ellen
 } JatekMod;
 
 void menu_inicializalas(void);

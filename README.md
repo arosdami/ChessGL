@@ -152,7 +152,11 @@ ChessGL/
 - Lightweight Minimax implementation with alpha-beta pruning for deterministic game-tree traversal.
 - Single-header `stb_image.h` integration for zero-dependency image loading.
 
+<<<<<<< HEAD
 ## Known Limitations
+=======
+- Az AI kiértékelése elsősorban az anyagi előnyre támaszkodik, ezért mélyebb stratégiai terveket nem mindig ismer fel.
+>>>>>>> f89998e (Projekt refaktoralasa es dokumentacio)
 
 - Castling and *en passant* are currently unsupported.
 - The AI prioritizes strict material advantage and piece valuation over deep combinatorial checkmate traps.

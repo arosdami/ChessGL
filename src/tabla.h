@@ -2,10 +2,22 @@
 #define TABLA_H
 
 #define MERET 8
+#define TABLA_SOR_FEKETE_FIGURA 0
+#define TABLA_SOR_FEKETE_GYALOG 1
+#define TABLA_SOR_FEHER_GYALOG 6
+#define TABLA_SOR_FEHER_FIGURA 7
+#define TABLA_NINCS_MEZO -1
+#define UTOLSO_LEPES_HOSSZ 32
+#define JATEK_FOLYAMATBAN 0
+#define JATEK_MATT 1
+#define JATEK_PATT 2
+#define TABLA_EGY_MEZO 1
+#define TABLA_KET_MEZO 2
+#define TABLA_HAROM_MEZO 3
 
-// Babutípusok
+/* A tabla elemein hasznalt babutipusok. */
 typedef enum {
-    URES = 0,
+    URES = JATEK_FOLYAMATBAN,
     GYALOG,
     BASTYA,
     HUSZAR,
@@ -14,30 +26,30 @@ typedef enum {
     KIRALY
 } BabuTipus;
 
-// Színek
+/* A jatekos szinei. */
 typedef enum {
-    NINCS_SZIN = 0,
+    NINCS_SZIN = JATEK_FOLYAMATBAN,
     FEHER,
     FEKETE
 } Szin;
 
-// Egy bábu a táblán
+/* Egy tabla-mezo tartalma. */
 typedef struct {
     BabuTipus tipus;
     Szin      szin;
 } Babu;
 
-// A játék teljes állapota
+/* A jatek teljes allapota. */
 typedef struct {
     Babu  tabla[MERET][MERET];
     Szin  kovetkezo;
     int   kivalasztott_sor;
     int   kivalasztott_oszlop;
     int   van_kivalasztva;
-    int   jatek_vege;              // 0=folyamatban, 1=matt, 2=patt
-    char  utolso_lepes[32];
+    int   jatek_vege;
+    char  utolso_lepes[UTOLSO_LEPES_HOSSZ];
 
-    // Sáncoláshoz: melyik király/bástya mozdult már el
+    /* A sancolas engedelyezesehez szukseges allapot. */
     int   feher_kiraly_mozdult;
     int   fekete_kiraly_mozdult;
     int   feher_bastya_a_mozdult;
@@ -45,13 +57,12 @@ typedef struct {
     int   fekete_bastya_a_mozdult;
     int   fekete_bastya_h_mozdult;
 
-    // En passant: az utolsó lépés dupla gyaloglépés volt-e,
-    // és melyik oszlopba ért
-    int   en_passant_sor;    // -1, ha nincs
+    /* Az utolso dupla gyaloglepes utani en passant celmezo. */
+    int   en_passant_sor;
     int   en_passant_oszlop;
 } JatekAllapot;
 
-// Alapfüggvények
+/* A tabla publikus muveletei. */
 void tabla_inicializalas(JatekAllapot *j);
 int  babu_szabalyos_lepes(JatekAllapot *j, int sr, int so, int cr, int co);
 int  lepes_vegrehajtas(JatekAllapot *j, int sr, int so, int cr, int co);

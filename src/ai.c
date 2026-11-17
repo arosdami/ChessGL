@@ -1,13 +1,16 @@
 #include "ai.h"
-#include <stdlib.h>
-#include <string.h>
 
-#define AI_ALAP_MELYSEG 2
-#define AI_MIN_MELYSEG  1
-#define AI_MAX_MELYSEG  3
-#define AI_MIN_PONT      -100000
-#define AI_MAX_PONT       100000
-#define AI_MATT_PONT      90000
+static const int AI_ALAP_MELYSEG = 1;
+static const int AI_MIN_MELYSEG = 1;
+static const int AI_MAX_MELYSEG = 3;
+static const int AI_VEGTELEN = 1000000;
+
+static const int AI_PONT_GYALOG = 100;
+static const int AI_PONT_HUSZAR = 320;
+static const int AI_PONT_FUTO = 330;
+static const int AI_PONT_BASTYA = 500;
+static const int AI_PONT_KIRALYNO = 900;
+static const int AI_PONT_KIRALY = 20000;
 
 static int ai_melyseg = AI_ALAP_MELYSEG;
 
@@ -21,123 +24,102 @@ int ai_nehezseg(void) {
     return ai_melyseg;
 }
 
-// ---- Bábu értékek ----
-static int babu_ertek(BabuTipus t) {
-    switch (t) {
-        case GYALOG:   return 100;
-        case HUSZAR:   return 320;
-        case FUTO:     return 330;
-        case BASTYA:   return 500;
-        case KIRALYNO: return 900;
-        case KIRALY:   return 20000;
+static int babu_ertek(BabuTipus tipus) {
+    switch (tipus) {
+        case GYALOG:   return AI_PONT_GYALOG;
+        case HUSZAR:   return AI_PONT_HUSZAR;
+        case FUTO:     return AI_PONT_FUTO;
+        case BASTYA:   return AI_PONT_BASTYA;
+        case KIRALYNO: return AI_PONT_KIRALYNO;
+        case KIRALY:   return AI_PONT_KIRALY;
         default:       return 0;
     }
 }
 
-// A tábla kiértékelése adott szemszögből.
-// Ha feher_szemszog = 1, akkor a fehér állását adja vissza pozitív számmal.
-static int tabla_ertek(JatekAllapot *j, Szin sajat) {
+static int tabla_ertek(const JatekAllapot *j, Szin ai_szin) {
     int pont = 0;
+
     for (int s = 0; s < MERET; s++) {
         for (int o = 0; o < MERET; o++) {
             Babu b = j->tabla[s][o];
-            if (b.tipus == URES) continue;
             int ertek = babu_ertek(b.tipus);
-            if (b.szin == sajat) pont += ertek;
-            else                 pont -= ertek;
+            if (b.szin == ai_szin) pont += ertek;
+            else if (b.szin != NINCS_SZIN) pont -= ertek;
         }
     }
     return pont;
 }
 
-// Lépésvégrehajtás "szimulációban" – a memóriabeli állapotot vissza is állítjuk.
-// Visszatérés: a levett bábu (hogy vissza tudjuk tenni).
-static Babu lepes_szimulal(JatekAllapot *j, int sr, int so, int cr, int co) {
-    Babu le = j->tabla[cr][co];
+static Babu lepest_alkalmaz(JatekAllapot *j,
+                            int sr, int so, int cr, int co) {
+    Babu levett = j->tabla[cr][co];
     j->tabla[cr][co] = j->tabla[sr][so];
     j->tabla[sr][so] = (Babu){URES, NINCS_SZIN};
-    return le;
+    return levett;
 }
 
-static void lepes_visszaallit(JatekAllapot *j, int sr, int so, int cr, int co, Babu le) {
+static void lepest_visszavon(JatekAllapot *j,
+                             int sr, int so, int cr, int co,
+                             Babu levett) {
     j->tabla[sr][so] = j->tabla[cr][co];
-    j->tabla[cr][co] = le;
+    j->tabla[cr][co] = levett;
 }
 
-// Minimax alpha-beta vágással.
-// Melyseg: hány lépést néz előre.
-// Visszatérés: a lépés értéke az AI szemszögéből.
-static int minimax(JatekAllapot *j, int melyseg, int alfa, int beta, Szin ai_szin) {
-    // Ha elértük a mélységet, kiértékeljük
-    if (melyseg == 0) {
-        return tabla_ertek(j, ai_szin);
-    }
+static int minimax(JatekAllapot *j, int melyseg,
+                   int alfa, int beta, Szin ai_szin) {
+    if (melyseg == 0) return tabla_ertek(j, ai_szin);
 
-    // Ki lép most?
-    Szin lepo = j->kovetkezo;
-    int maximalizal = (lepo == ai_szin);
-
-    // Összes legális lépés
-    int legjobb = maximalizal ? AI_MIN_PONT : AI_MAX_PONT;
+    int maximalizal = j->kovetkezo == ai_szin;
+    int legjobb = maximalizal ? -AI_VEGTELEN : AI_VEGTELEN;
+    int talalt = 0;
+    int lehetseges[MERET][MERET];
 
     for (int sr = 0; sr < MERET; sr++) {
         for (int so = 0; so < MERET; so++) {
             Babu b = j->tabla[sr][so];
-            if (b.tipus == URES || b.szin != lepo) continue;
+            if (b.tipus == URES || b.szin != j->kovetkezo) continue;
 
+            lepesek_listazasa(j, sr, so, lehetseges);
             for (int cr = 0; cr < MERET; cr++) {
                 for (int co = 0; co < MERET; co++) {
-                    // Szimuláljuk: a babu_szabalyos_lepes a jelenlegi állapotot nézi,
-                    // de nekünk a kovetkezo szint már a másik játékosé.
-                    // Ezért ideiglenesen beállítjuk a kovetkezo színt.
-                    Szin mentett = j->kovetkezo;
-                    j->kovetkezo = lepo;
+                    if (!lehetseges[cr][co]) continue;
 
-                    int ervenyes = babu_szabalyos_lepes(j, sr, so, cr, co);
-                    if (!ervenyes) {
-                        j->kovetkezo = mentett;
-                        continue;
-                    }
+                    Babu levett = lepest_alkalmaz(j, sr, so, cr, co);
+                    Szin mentett_szin = j->kovetkezo;
+                    j->kovetkezo = (mentett_szin == FEHER) ? FEKETE : FEHER;
 
-                    // Lépés szimulálása
-                    Babu le = lepes_szimulal(j, sr, so, cr, co);
-                    j->kovetkezo = (lepo == FEHER) ? FEKETE : FEHER;
+                    int pont = minimax(j, melyseg - 1,
+                                       alfa, beta, ai_szin);
 
-                    int ertek = minimax(j, melyseg - 1, alfa, beta, ai_szin);
-
-                    // Visszaállítás
-                    j->kovetkezo = lepo;
-                    lepes_visszaallit(j, sr, so, cr, co, le);
-                    j->kovetkezo = mentett;
+                    j->kovetkezo = mentett_szin;
+                    lepest_visszavon(j, sr, so, cr, co, levett);
+                    talalt = 1;
 
                     if (maximalizal) {
-                        if (ertek > legjobb) legjobb = ertek;
-                        if (ertek > alfa) alfa = ertek;
-                        if (beta <= alfa) return legjobb;  // vágás
+                        if (pont > legjobb) legjobb = pont;
+                        if (legjobb > alfa) alfa = legjobb;
                     } else {
-                        if (ertek < legjobb) legjobb = ertek;
-                        if (ertek < beta) beta = ertek;
-                        if (beta <= alfa) return legjobb;  // vágás
+                        if (pont < legjobb) legjobb = pont;
+                        if (legjobb < beta) beta = legjobb;
                     }
+
+                    if (beta <= alfa) return legjobb;
                 }
             }
         }
     }
 
-    // Ha nincs legális lépés (matt vagy patt)
-    if (legjobb == AI_MIN_PONT) return -AI_MATT_PONT;
-    if (legjobb == AI_MAX_PONT) return AI_MATT_PONT;
-    return legjobb;
+    return talalt ? legjobb : tabla_ertek(j, ai_szin);
 }
 
 int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
                       int *sor_ki, int *oszlop_ki,
                       int *sor_be, int *oszlop_be) {
-
-    int legjobb_ertek = -AI_MAX_PONT * 10;
+    Szin mentett_szin = j->kovetkezo;
+    int legjobb_pont = -AI_VEGTELEN;
     int talalt = 0;
+    int lehetseges[MERET][MERET];
 
-    Szin mentett = j->kovetkezo;
     j->kovetkezo = szin;
 
     for (int sr = 0; sr < MERET; sr++) {
@@ -145,23 +127,20 @@ int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
             Babu b = j->tabla[sr][so];
             if (b.tipus == URES || b.szin != szin) continue;
 
+            lepesek_listazasa(j, sr, so, lehetseges);
             for (int cr = 0; cr < MERET; cr++) {
                 for (int co = 0; co < MERET; co++) {
-                    if (!babu_szabalyos_lepes(j, sr, so, cr, co)) continue;
+                    if (!lehetseges[cr][co]) continue;
 
-                    // Lépés szimulálása
-                    Babu le = lepes_szimulal(j, sr, so, cr, co);
+                    Babu levett = lepest_alkalmaz(j, sr, so, cr, co);
                     j->kovetkezo = (szin == FEHER) ? FEKETE : FEHER;
-
-                    int ertek = minimax(j, ai_melyseg,
-                                        -AI_MAX_PONT * 10, AI_MAX_PONT * 10, szin);
-
-                    // Visszaállítás
+                    int pont = minimax(j, ai_melyseg - AI_MIN_MELYSEG,
+                                       -AI_VEGTELEN, AI_VEGTELEN, szin);
                     j->kovetkezo = szin;
-                    lepes_visszaallit(j, sr, so, cr, co, le);
+                    lepest_visszavon(j, sr, so, cr, co, levett);
 
-                    if (!talalt || ertek > legjobb_ertek) {
-                        legjobb_ertek = ertek;
+                    if (!talalt || pont > legjobb_pont) {
+                        legjobb_pont = pont;
                         *sor_ki = sr;
                         *oszlop_ki = so;
                         *sor_be = cr;
@@ -173,6 +152,6 @@ int ai_lepest_valaszt(JatekAllapot *j, Szin szin,
         }
     }
 
-    j->kovetkezo = mentett;
+    j->kovetkezo = mentett_szin;
     return talalt;
 }

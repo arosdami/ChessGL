@@ -14,18 +14,16 @@ static unsigned int VAO, VBO;
 static int akt_szel = ABLAK_SZEL;
 static int akt_mag  = ABLAK_MAG;
 
-// ============================================================
-//                    SHADER BETOLTES
-// ============================================================
+/* Shader betoltese. */
 static unsigned int shader_betolt(const char *ut, GLenum tipus) {
     FILE *f = fopen(ut, "rb");
     if (!f) { printf("Nem talalhato: %s\n", ut); return 0; }
     fseek(f, 0, SEEK_END);
     long hossz = ftell(f);
     fseek(f, 0, SEEK_SET);
-    char *tart = (char*)malloc(hossz + 1);
-    fread(tart, 1, hossz, f);
-    tart[hossz] = 0;
+    char *tart = (char*)malloc(hossz + sizeof(char));
+    fread(tart, sizeof(char), hossz, f);
+    tart[hossz] = '\0';
     fclose(f);
 
     unsigned int sh = glCreateShader(tipus);
@@ -35,26 +33,28 @@ static unsigned int shader_betolt(const char *ut, GLenum tipus) {
     int ok;
     glGetShaderiv(sh, GL_COMPILE_STATUS, &ok);
     if (!ok) {
-        char log[512];
-        glGetShaderInfoLog(sh, 512, NULL, log);
+        char log[RAJZ_SHADER_LOG_MERET];
+        glGetShaderInfoLog(sh, RAJZ_SHADER_LOG_MERET, NULL, log);
         printf("Shader hiba (%s):\n%s\n", ut, log);
+        glDeleteShader(sh);
+        free(tart);
+        return 0;
     }
     free(tart);
     return sh;
 }
 
-// ============================================================
-//                    ABLAK IKON
-// ============================================================
+/* Az ablak ikonjanak beallitasa. */
 static void ablak_ikon_beallit(void) {
     int w, h, csatornak;
-    unsigned char *pixels = stbi_load("resources/icon.png", &w, &h, &csatornak, 4);
+    unsigned char *pixels = stbi_load("resources/icon.png", &w, &h, &csatornak,
+                                      RAJZ_RGBA_CSATORNAK);
     if (pixels) {
         GLFWimage ikon;
         ikon.width  = w;
         ikon.height = h;
         ikon.pixels = pixels;
-        glfwSetWindowIcon(ablak, 1, &ikon);
+        glfwSetWindowIcon(ablak, RAJZ_EGY_DB, &ikon);
         stbi_image_free(pixels);
         printf("Ablak ikon betoltve: resources/icon.png (%dx%d)\n", w, h);
     } else {
@@ -62,9 +62,7 @@ static void ablak_ikon_beallit(void) {
     }
 }
 
-// ============================================================
-//                    INICIALIZALAS
-// ============================================================
+/* A rajzolo inicializalasa. */
 int rajz_inicializalas(void) {
     if (!glfwInit()) return 0;
 
@@ -85,27 +83,56 @@ int rajz_inicializalas(void) {
 
     unsigned int vs = shader_betolt("shaders/vertex.glsl", GL_VERTEX_SHADER);
     unsigned int fs = shader_betolt("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
+    if (!vs || !fs) {
+        glfwDestroyWindow(ablak);
+        ablak = NULL;
+        glfwTerminate();
+        return 0;
+    }
 
     program = glCreateProgram();
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
+    int link_ok;
+    glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
     glDeleteShader(vs);
     glDeleteShader(fs);
+    if (!link_ok) {
+        char log[RAJZ_SHADER_LOG_MERET];
+        glGetProgramInfoLog(program, RAJZ_SHADER_LOG_MERET, NULL, log);
+        printf("Shader program linkelesi hiba:\n%s\n", log);
+        glDeleteProgram(program);
+        program = 0;
+        glfwDestroyWindow(ablak);
+        ablak = NULL;
+        glfwTerminate();
+        return 0;
+    }
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, 8192 * 7 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 RAJZ_MAX_CSUCSSZAM * RAJZ_VERTEX_ADAT * sizeof(float),
+                 NULL, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(RAJZ_POZICIO_ATTR, RAJZ_POZICIO_ADAT,
+                          GL_FLOAT, GL_FALSE,
+                          RAJZ_VERTEX_ADAT * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(RAJZ_POZICIO_ATTR);
+    glVertexAttribPointer(RAJZ_TEXTURA_ATTR, RAJZ_TEXTURA_ADAT,
+                          GL_FLOAT, GL_FALSE,
+                          RAJZ_VERTEX_ADAT * sizeof(float),
+                          (void*)(RAJZ_TEXTURA_OFFSET * sizeof(float)));
+    glEnableVertexAttribArray(RAJZ_TEXTURA_ATTR);
+    glVertexAttribPointer(RAJZ_SZIN_ATTR, RAJZ_SZIN_ADAT,
+                          GL_FLOAT, GL_FALSE,
+                          RAJZ_VERTEX_ADAT * sizeof(float),
+                          (void*)(RAJZ_SZIN_OFFSET * sizeof(float)));
+    glEnableVertexAttribArray(RAJZ_SZIN_ATTR);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -134,30 +161,28 @@ void rajz_torol(float r, float g, float b) {
 }
 
 void rajz_ablak_meret(int szel, int mag) {
-    if (szel < 1) szel = 1;
-    if (mag  < 1) mag  = 1;
+    if (szel < RAJZ_MIN_MERET) szel = RAJZ_MIN_MERET;
+    if (mag  < RAJZ_MIN_MERET) mag  = RAJZ_MIN_MERET;
     akt_szel = szel;
     akt_mag  = mag;
     glViewport(0, 0, szel, mag);
 
     glUseProgram(program);
-    float proj[16] = {
-        2.0f / szel, 0,            0, 0,
-        0,          -2.0f / mag,   0, 0,
-        0,           0,           -1, 0,
-       -1,           1,            0, 1
+    float proj[RAJZ_MATRIX_ELEMEK] = {
+        RAJZ_KETTO / szel, 0,                  0, 0,
+        0,                  -RAJZ_KETTO / mag, 0, 0,
+        0,                  0,                -1, 0,
+       -1,                  1,                 0, 1
     };
     glUniformMatrix4fv(glGetUniformLocation(program, "projection"),
-                       1, GL_FALSE, proj);
+                       RAJZ_EGY_DB, GL_FALSE, proj);
 }
 
-// ============================================================
-//                    RAJZOLO PRIMITIVEK
-// ============================================================
+/* Alapveto rajzolasi muveletek. */
 static void csucsok_kuld(const float *adatok, int csucs_db) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0,
-                    csucs_db * 7 * sizeof(float), adatok);
+                    csucs_db * RAJZ_VERTEX_ADAT * sizeof(float), adatok);
     glDrawArrays(GL_TRIANGLES, 0, csucs_db);
 }
 
@@ -173,7 +198,7 @@ void rajz_negyzet(float x, float y, float w, float h,
         x + w, y + h, 0,0, r,g,b,
         x,     y + h, 0,0, r,g,b,
     };
-    csucsok_kuld(d, 6);
+    csucsok_kuld(d, RAJZ_NEGYZET_CSUCSSZAM);
 }
 
 void rajz_negyzet_atlatszo(float x, float y, float w, float h,
@@ -189,12 +214,12 @@ void rajz_kor(float cx, float cy, float sugar,
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "hasznal_textura"), 0);
 
-    const int N = 32;
-    float d[N * 3 * 7];
+    const int N = RAJZ_KOR_SZELETEK;
+    float d[N * RAJZ_HAROMSZOG_CSUCSSZAM * RAJZ_VERTEX_ADAT];
     int i = 0;
     for (int k = 0; k < N; k++) {
-        float a1 = (float)k       / N * 6.2831853f;
-        float a2 = (float)(k + 1) / N * 6.2831853f;
+        float a1 = (float)k       / N * RAJZ_TELJES_KOR;
+        float a2 = (float)(k + RAJZ_EGY_DB) / N * RAJZ_TELJES_KOR;
 
         d[i++] = cx; d[i++] = cy; d[i++] = 0; d[i++] = 0; d[i++] = r; d[i++] = g; d[i++] = b;
         d[i++] = cx + cosf(a1) * sugar; d[i++] = cy + sinf(a1) * sugar;
@@ -202,7 +227,7 @@ void rajz_kor(float cx, float cy, float sugar,
         d[i++] = cx + cosf(a2) * sugar; d[i++] = cy + sinf(a2) * sugar;
         d[i++] = 0; d[i++] = 0; d[i++] = r; d[i++] = g; d[i++] = b;
     }
-    csucsok_kuld(d, N * 3);
+    csucsok_kuld(d, N * RAJZ_HAROMSZOG_CSUCSSZAM);
 }
 
 void rajz_haromszog(float x1, float y1, float x2, float y2,
@@ -215,15 +240,14 @@ void rajz_haromszog(float x1, float y1, float x2, float y2,
         x2, y2, 0,0, r,g,b,
         x3, y3, 0,0, r,g,b,
     };
-    csucsok_kuld(d, 3);
+    csucsok_kuld(d, RAJZ_HAROMSZOG_CSUCSSZAM);
 }
 
-// ============================================================
-//                    TEXTURA KEZELES
-// ============================================================
+/* Texturak betoltese es kirajzolasa. */
 unsigned int rajz_textura_betolt(const char *ut) {
     int w, h, csatornak;
-    unsigned char *adatok = stbi_load(ut, &w, &h, &csatornak, 4);
+    unsigned char *adatok = stbi_load(ut, &w, &h, &csatornak,
+                                      RAJZ_RGBA_CSATORNAK);
     if (!adatok) {
         printf("Nem sikerult betolteni: %s\n", ut);
         return 0;
@@ -261,7 +285,7 @@ void rajz_textura_negyszog(unsigned int textura, float x, float y,
         x + w, y + h, u1, v1, 1,1,1,
         x,     y + h, u0, v1, 1,1,1,
     };
-    csucsok_kuld(d, 6);
+    csucsok_kuld(d, RAJZ_NEGYZET_CSUCSSZAM);
 
     glUniform1i(glGetUniformLocation(program, "hasznal_textura"), 0);
 }
@@ -282,15 +306,13 @@ void rajz_textura_kor(unsigned int textura, float cx, float cy, float sugar) {
         cx + sugar, cy + sugar, 1, 1, 1,1,1,
         cx - sugar, cy + sugar, 0, 1, 1,1,1,
     };
-    csucsok_kuld(d, 6);
+    csucsok_kuld(d, RAJZ_NEGYZET_CSUCSSZAM);
 
     glUniform1i(glGetUniformLocation(program, "hasznal_textura"), 0);
     glUniform1i(glGetUniformLocation(program, "kormaszk"), 0);
 }
 
-// ============================================================
-//                    5x7 BITMAP FONT
-// ============================================================
+/* 5x7 pixeles bitmap betu. (ezt ai csinalta) */
 static const unsigned char FONT[96][5] = {
     {0x00,0x00,0x00,0x00,0x00},{0x00,0x00,0x5F,0x00,0x00},{0x00,0x07,0x00,0x07,0x00},
     {0x14,0x7F,0x14,0x7F,0x14},{0x24,0x2A,0x7F,0x2A,0x12},{0x23,0x13,0x08,0x64,0x62},
@@ -328,13 +350,13 @@ static const unsigned char FONT[96][5] = {
 
 static void karakter_rajzol(char c, float x, float y, float meret,
                             float r, float g, float b) {
-    if (c < 32 || c > 126) c = '?';
-    int idx = c - 32;
-    float px = meret / 7.0f;
+    if (c < BETU_ASCII_KEZDO || c > BETU_ASCII_VEGE) c = '?';
+    int idx = c - BETU_ASCII_KEZDO;
+    float px = meret / BETU_SOROK;
 
-    for (int oszlop = 0; oszlop < 5; oszlop++) {
+    for (int oszlop = 0; oszlop < BETU_OSZLOPOK; oszlop++) {
         unsigned char bajt = FONT[idx][oszlop];
-        for (int sor = 0; sor < 7; sor++) {
+        for (int sor = 0; sor < BETU_SOROK; sor++) {
             if (bajt & (1 << sor)) {
                 rajz_negyzet(x + oszlop * px, y + sor * px,
                              px, px, r, g, b);
@@ -345,23 +367,21 @@ static void karakter_rajzol(char c, float x, float y, float meret,
 
 void rajz_szoveg(const char *szoveg, float x, float y,
                  float meret, float r, float g, float b) {
-    float px = meret / 7.0f;
+    float px = meret / BETU_SOROK;
     float kurzor = x;
     while (*szoveg) {
         karakter_rajzol(*szoveg, kurzor, y, meret, r, g, b);
-        kurzor += 6 * px;
+        kurzor += BETU_KOZ * px;
         szoveg++;
     }
 }
 
 float rajz_szoveg_szelesseg(const char *szoveg, float meret) {
-    float px = meret / 7.0f;
-    return strlen(szoveg) * 6 * px;
+    float px = meret / BETU_SOROK;
+    return strlen(szoveg) * BETU_KOZ * px;
 }
 
-// ============================================================
-//                    EGER ES BILLENTYU
-// ============================================================
+/* Eger es billentyuzet lekerdezese. */
 int rajz_gomb_lenyomva(int gomb) {
     return glfwGetMouseButton(ablak, gomb) == GLFW_PRESS;
 }
@@ -378,9 +398,7 @@ double rajz_eger_y(void) {
     return y;
 }
 
-// ============================================================
-//                    IDO ES TELJES KEPERNYO
-// ============================================================
+/* Ido es teljes kepernyos mod. */
 double rajz_ido(void) {
     return glfwGetTime();
 }
