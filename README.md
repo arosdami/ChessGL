@@ -1,205 +1,179 @@
-<div align="center">
+ <div align="center">
   <img src="screenshots/logo.png" alt="ChessGL logo" width="800" />
 </div>
 
 <div align="center">
-  <a href="https://github.com/arosdami/ChessGL"><img src="https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github" alt="GitHub repo" /></a>
+  <a href="https://github.com/arosdami/ChessGL"><img src="https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github" alt="GitHub repository" /></a>
   <a href="https://github.com/arosdami/ChessGL/releases"><img src="https://img.shields.io/badge/Release-Download-2ea44f?style=for-the-badge" alt="Download release" /></a>
-  <a href="#build--run"><img src="https://img.shields.io/badge/Build-Run-0A66C2?style=for-the-badge" alt="Build and run" /></a>
+  <a href="#build-and-run"><img src="https://img.shields.io/badge/Build-Run-0A66C2?style=for-the-badge" alt="Build and run" /></a>
   <a href="#gameplay"><img src="https://img.shields.io/badge/How_to_Play-FFB000?style=for-the-badge" alt="How to play" /></a>
 </div>
 
-<div align="center" style="margin-top: 10px;">
-  <a href="https://hub.xerj.org/contributors/arosdami"><img src="https://hub.xerj.org/contributors/arosdami/badge.svg" alt="XERJ Corpus Hub contributor" /></a>
-</div>
-
 <p align="center">
-A modern chess game written in C that renders the chessboard, UI menus, and pieces using an OpenGL 3.3 Core Profile graphics pipeline. Developed as a university coursework project in 3D modeling and game development, featuring custom GLSL shaders, proprietary chess rule evaluation logic, and single-player gameplay against an AI engine.
+  A chess program written in C, featuring OpenGL 3.3 Core Profile rendering,
+  local two-player gameplay, and a Minimax-based AI opponent.
 </p>
 
 ## Features
 
-- Local two-player mode on the same machine with alternating turns
-- Single-player AI mode (powered by Minimax with alpha-beta pruning)
-- Complete chess rules engine:
-  - Standard movement validation for all piece types
-  - Capture detection
-  - Pawn promotion
-  - Check, checkmate, and stalemate detection
-- Modern dark-themed user interface and interactive main menu
-- Textured 2D chess pieces mapped from a sprite sheet
-- Visual highlights for selected pieces and valid target squares
-- Fullscreen toggle support (`F11`)
-- Custom application icon and executable resource integration
+- Local two-player mode with alternating turns
+- Single-player mode with three difficulty levels
+- Piece movement, captures, pawn promotion, check, checkmate, and stalemate handling
+- Visual highlighting of selected pieces and valid destination squares
+- Dark-themed main menu and in-game menu
+- 2D chess pieces loaded from a sprite sheet
+- Fullscreen mode toggled with the `F11` key
+- Embedded Windows application icon
 
-![Gameplay Screenshot](screenshots/sakk.png)
+![Gameplay screenshot](screenshots/sakk.png)
 
 ## Technologies
 
-- **Language:** C (C11 standard)
-- **Graphics API:** OpenGL 3.3 Core Profile
-- **Window Management & Input:** GLFW 3.x
-- **OpenGL Function Loader:** GLAD
-- **Image Decoding:** `stb_image.h`
-- **Compiler Suite:** GCC / MinGW-w64
+- **Language:** C11
+- **Graphics:** OpenGL 3.3 Core Profile
+- **Window management and input:** GLFW 3.x
+- **OpenGL function loading:** GLAD
+- **Image loading:** `stb_image.h`
+- **Compiler:** GCC / MinGW-w64
 
-## Environment & Prerequisites
+## Prerequisites
 
-This project is built and optimized for Windows using MinGW-w64 GCC. The repository includes pre-packaged GLFW static libraries and GLAD header/source dependencies.
+The project is designed for Windows and the MSYS2 UCRT64 environment. The `gcc` and `windres` commands required for compilation must be available in the system PATH.
 
-### Directories and Assets
+By default, `build_and_run.bat` also adds the `C:\msys64\ucrt64\bin` directory to the PATH.
 
-- `lib/` – GLFW static library binaries
-- `include/` – GLAD and `stb_image` header files
-- `src/` – Game engine and logic source code
-- `shaders/` – GLSL vertex and fragment shader files
-- `resources/` – Windows icons, sprites, textures, and asset files
-- `screenshots/` – Documentation images
+The GLFW static libraries, GLAD, and `stb_image.h` are already included in the repository, so no separate package manager or external dependencies are required.
 
----
+## Build and Run
 
-## Manual Compilation
+### Manual compilation
 
-Open PowerShell or Command Prompt in the root directory of the project, then run:
+From the project root directory in the MSYS2 UCRT64 environment:
 
 ```bat
 windres resources\ikon.rc -O coff -o resources\ikon.o
 
-gcc -Wall -Wextra -std=c11 -Iinclude -Isrc ^
-    src\main.c src\tabla.c src\rajz.c src\menu.c src\ai.c src\babu.c src\glad.c src\stb_impl.c ^
+gcc -mwindows -Wall -Wextra -std=c11 -Iinclude -Isrc ^
+    src\main.c src\jatek_rajz.c src\tabla.c src\rajz.c src\menu.c src\ai.c src\babu.c src\glad.c src\stb_impl.c ^
     resources\ikon.o ^
     -o ChessGL.exe ^
     -Llib -lglfw3 -lopengl32 -lgdi32 -lm
 ```
 
-Execute the compiled binary:
+To launch the application:
 
 ```bat
-.\ChessGL.exe
+ChessGL.exe
 ```
 
-*Note: If you wish to build without embedding the Windows executable icon, simply omit `resources\ikon.o` from the build command.*
-
----
+The `resources\ikon.o` file is a precompiled resource object. If you need to regenerate it, the icon resource is compiled from `resources\ikon.rc` and `resources\sakk.ico` using the `windres` command.
 
 ## Controls
 
 | Key / Input | Action |
-|-------------|--------|
-| **Left Mouse Button** | Select a piece, then select target square to execute move |
-| **ESC** | Return to main menu or pause/resume |
-| **R** | Restart game in current mode |
-| **F11** | Toggle Fullscreen |
-
----
+|---|---|
+| Left mouse button | Select a piece, then select its destination square |
+| `ESC` | Return to the main menu or pause the game |
+| `R` | Restart the current game mode |
+| `F11` | Toggle fullscreen mode |
 
 ## Gameplay
 
-1. Launch the executable and select either **New Game** (PvP) or **AiChess** (PvE) from the main menu.
-2. When playing against AI, select the desired difficulty: Easy, Normal, or Hard.
-3. Click on your piece on the board to select it.
-4. Valid destination squares are highlighted in green.
-5. Click on an authorized target square to complete the turn.
-6. Press `ESC` at any time to return to the main menu, and select **Continue** to resume play.
-7. The match concludes when checkmate or stalemate is reached.
-
----
+1. Launch the application and select **New Game** (local two-player mode) or **AiChess** (play against the computer).
+2. In AI mode, select a difficulty level: **Easy**, **Normal**, or **Hard**.
+3. Click the piece you want to move.
+4. The program highlights valid destination squares in green.
+5. Click the desired square to complete the move.
+6. Press `ESC` to return to the menu. Select **Continue** to resume the game.
+7. The game ends when checkmate or stalemate occurs.
 
 ## Project Structure
 
+The following directory tree represents the current project working directory. It does not include the `.git` directory.
+
+The `ChessGL.exe`, `resources\ikon.o`, and batch files are generated or local build files and are therefore excluded from version control through `.gitignore`.
+
 ```text
 ChessGL/
-├── ChessGL.exe             # Compiled executable
-├── glfw3.dll               # GLFW dynamic link library
-├── README.md               # Project documentation
-├── LICENSE                 # License file
-├── lib/                    # GLFW static libraries
-├── include/                # GLAD and stb_image header files
-├── shaders/                # OpenGL shader files
-│   ├── vertex.glsl
-│   └── fragment.glsl
-├── resources/              # Icons, textures, and assets
-│   ├── sakk.ico
-│   ├── icon.png
+├── .gitignore
+├── LICENSE
+├── README.md
+├── ChessGL.exe
+├── glfw3.dll
+├── include/
+│   ├── glad/
+│   │   └── glad.h
+│   ├── GLFW/
+│   │   ├── glfw3.h
+│   │   └── glfw3native.h
+│   ├── include/
+│   │   └── GLFW/
+│   │       ├── glfw3.h
+│   │       └── glfw3native.h
+│   ├── KHR/
+│   │   └── khrplatform.h
+│   └── stb_image.h
+├── lib/
+│   ├── libglfw3.a
+│   └── libglfw3dll.a
+├── resources/
 │   ├── babuk.png
+│   ├── babuk.svg
 │   ├── creator.png
+│   ├── icon.png
+│   ├── ikon.o
 │   ├── ikon.rc
-│   └── ikon.o              # Compiled resource object
-├── screenshots/            # Visual documentation
+│   └── sakk.ico
+├── screenshots/
+│   ├── logo-removebg-preview.png
 │   ├── logo.png
 │   ├── mainmenu.png
 │   └── sakk.png
-├── src/                    # Source files
-│   ├── main.c
-│   ├── tabla.c / tabla.h
-│   ├── rajz.c / rajz.h
-│   ├── babu.c / babu.h
-│   ├── menu.c / menu.h
-│   ├── ai.c / ai.h
-│   ├── glad.c
-│   ├── stb_impl.c
-│   └── ...
-└── .gitignore
+├── shaders/
+│   ├── fragment.glsl
+│   └── vertex.glsl
+└── src/
+    ├── ai.c
+    ├── ai.h
+    ├── babu.c
+    ├── babu.h
+    ├── glad.c
+    ├── jatek_rajz.c
+    ├── jatek_rajz.h
+    ├── main.c
+    ├── menu.c
+    ├── menu.h
+    ├── rajz.c
+    ├── rajz.h
+    ├── stb_impl.c
+    ├── tabla.c
+    ├── tabla.h
+    └── ui_konstansok.h
 ```
-
----
 
 ## Implementation Details
 
-- The rendering pipeline avoids heavy 3D mesh loaders by utilizing a single optimized 2D sprite sheet for all piece variations.
-- Custom bitmap font system for in-engine UI rendering without external FreeType bloat.
-- Isolated GLSL shaders stored externally under `shaders/`.
-- Lightweight Minimax implementation with alpha-beta pruning for deterministic game-tree traversal.
-- Single-header `stb_image.h` integration for zero-dependency image loading.
+- Rendering uses a sprite sheet instead of an external 3D model loader.
+- GLSL vertex and fragment shaders are stored in separate files.
+- The computer opponent uses the Minimax algorithm with alpha-beta pruning.
+- Image loading is handled by the single-header `stb_image.h` library.
 
-<<<<<<< HEAD
 ## Known Limitations
-=======
-- Az AI kiértékelése elsősorban az anyagi előnyre támaszkodik, ezért mélyebb stratégiai terveket nem mindig ismer fel.
->>>>>>> f89998e (Projekt refaktoralasa es dokumentacio)
 
-- Castling and *en passant* are currently unsupported.
-- The AI prioritizes strict material advantage and piece valuation over deep combinatorial checkmate traps.
+- Castling and en passant are not currently implemented.
+- The AI evaluation primarily relies on material advantage, so it does not always recognize deeper strategic plans and combinations.
 
----
+## Author and Course
 
-## Author & Academic Information
-
-- **Author:** Aros Damján [![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/arosdami/badge.svg)](https://hub.xerj.org/contributors/arosdami)
+- **Author:** Aros Damján
 - **Course:** 3D Modeling and Game Development
 - **Instructor:** Dr. Péter Mileff
 
 ## Repository
 
-- GitHub: [https://github.com/arosdami/ChessGL](https://github.com/arosdami/ChessGL)
-- XERJ Reference Corpus: [hub.xerj.org/contributors/arosdami](https://hub.xerj.org/contributors/arosdami)
-
----
+- GitHub: [arosdami/ChessGL](https://github.com/arosdami/ChessGL)
+- XERJ Reference Corpus: [arosdami](https://hub.xerj.org/contributors/arosdami)
 
 ## License
 
-This project is licensed under the terms of the [MIT License](LICENSE).
-
-```text
-MIT License
-
-Copyright (c) 2026 Aros Damján
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+This project is distributed under the terms of the [MIT License](LICENSE).
